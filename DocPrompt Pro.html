@@ -1,0 +1,2166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Project Doc Prompt Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f3f2ef;
+    --surface: #ffffff;
+    --surface2: #f8f7f4;
+    --surface3: #eef3f8;
+    --border: #dce1e7;
+    --border-light: #eaecef;
+    --accent: #0a66c2;
+    --accent-dark: #004182;
+    --accent-light: #e8f0fb;
+    --text: #191919;
+    --text-secondary: #434649;
+    --muted: #86888a;
+    --success: #057642;
+    --success-bg: #e6f4ea;
+    --warn: #b24020;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .header-tag {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border-light);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    height: calc(100vh - 56px);
+  }
+
+  .left-panel {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px 18px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .left-panel::-webkit-scrollbar { width: 4px; }
+  .left-panel::-webkit-scrollbar-track { background: transparent; }
+  .left-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .panel-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .section-num {
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .section-header .panel-title { margin-bottom: 0; }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+
+  .form-group:last-child { margin-bottom: 0; }
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  input, textarea, select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 8px 11px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    width: 100%;
+  }
+
+  input:hover, textarea:hover, select:hover {
+    border-color: #b0b8c1;
+    background: var(--surface);
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(10,102,194,0.12);
+  }
+
+  input::placeholder, textarea::placeholder { color: #adb3b8; }
+  textarea { resize: vertical; min-height: 68px; }
+  select option { background: var(--surface); }
+
+  .chips-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .chip {
+    padding: 4px 11px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    color: var(--text-secondary);
+    background: var(--surface);
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+  .doc-card {
+    padding: 9px 11px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    background: var(--surface2);
+  }
+
+  .doc-card:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .doc-card.active {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    box-shadow: 0 0 0 2px rgba(10,102,194,0.15);
+  }
+
+  .doc-card.active .doc-check { opacity: 1; }
+
+  .doc-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    padding-right: 18px;
+  }
+
+  .doc-desc {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  .doc-check {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+    width: 15px;
+    height: 15px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .btn-generate {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 11px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    box-shadow: 0 1px 4px rgba(10,102,194,0.3);
+  }
+
+  .btn-generate:hover {
+    background: var(--accent-dark);
+    box-shadow: 0 2px 8px rgba(10,102,194,0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-generate:active { transform: translateY(0); }
+
+  .btn-generate:disabled {
+    background: #a0bcd8;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .right-header {
+    padding: 14px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .right-header h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .header-right-actions { display: flex; align-items: center; gap: 10px; }
+
+  .prompt-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-light);
+    border: 1px solid rgba(10,102,194,0.2);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .btn-copy-all {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-family: var(--font);
+    font-weight: 600;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-copy-all:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .output-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .output-area::-webkit-scrollbar { width: 5px; }
+  .output-area::-webkit-scrollbar-track { background: transparent; }
+  .output-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    gap: 14px;
+    text-align: center;
+    padding: 60px 40px;
+  }
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--surface3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    border: 1px solid var(--border-light);
+  }
+
+  .empty-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-secondary);
+  }
+
+  .empty-sub {
+    font-size: 13px;
+    line-height: 1.6;
+    max-width: 320px;
+    color: var(--muted);
+  }
+
+  .prompt-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    animation: fadeUp 0.22s ease;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s;
+  }
+
+  .prompt-card:hover { box-shadow: var(--shadow-md); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .prompt-card-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--surface2);
+  }
+
+  .prompt-doc-label { display: flex; align-items: center; gap: 10px; }
+
+  .doc-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.6px;
+    flex-shrink: 0;
+  }
+
+  .prompt-title-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .prompt-subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .card-actions { display: flex; gap: 8px; align-items: center; }
+
+  .btn-copy {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-family: var(--font);
+    font-weight: 600;
+    padding: 5px 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-copy:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .btn-copy.copied {
+    border-color: var(--success);
+    color: var(--success);
+    background: var(--success-bg);
+  }
+
+  .prompt-body { padding: 16px; }
+
+  .prompt-textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.75;
+    padding: 14px 16px;
+    width: 100%;
+    min-height: 380px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .prompt-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(10,102,194,0.10);
+    background: var(--surface);
+  }
+
+  .prompt-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .divider { height: 1px; background: var(--border-light); margin: 2px 0; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; height: auto; }
+    .left-panel { height: auto; }
+    .right-panel { min-height: 600px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">📋</div>
+    DocPrompt Pro
+  </div>
+  <span class="header-tag">v1.0 · Program Management</span>
+</header>
+
+<div class="layout">
+
+  <!-- LEFT: INPUT PANEL -->
+  <div class="left-panel">
+
+    <div>
+      <div class="panel-title">Project Context</div>
+    </div>
+
+    <div class="form-group">
+      <label>Project Name *</label>
+      <select id="projectName">
+        <option value="">— Select a project —</option>
+        <optgroup label="Employee Experience">
+          <option value="AI Inferred Skills: MSFT People Skills - Implementation">AI Inferred Skills: MSFT People Skills - Implementation</option>
+          <option value="AI Inferred Skills: TechWolf - Implementation">AI Inferred Skills: TechWolf - Implementation</option>
+          <option value="AI-Curated Review in TDE">AI-Curated Review in TDE</option>
+          <option value="Annual Review Cycle FY2026">Annual Review Cycle FY2026</option>
+          <option value="Australia Long Service Leave (Phase 2) -Assessment Only">Australia Long Service Leave (Phase 2) -Assessment Only</option>
+          <option value="Brazil Leave Balance - Phase 2 (WD Extend)">Brazil Leave Balance - Phase 2 (WD Extend)</option>
+          <option value="Bumblebee (Global Payroll) Wave 1: France Fast Follow Optimizations">Bumblebee (Global Payroll) Wave 1: France Fast Follow Optimizations</option>
+          <option value="CA Emergency Contact Update​">CA Emergency Contact Update​</option>
+          <option value="CSOD Support &amp; Enhancements">CSOD Support &amp; Enhancements</option>
+          <option value="CSOD to GroupID integration">CSOD to GroupID integration</option>
+          <option value="DIBs Self ID: Phase 2 Employee (Workday)">DIBs Self ID: Phase 2 Employee (Workday)</option>
+          <option value="EU Directive on Pay Transparency (Discovery)">EU Directive on Pay Transparency (Discovery)</option>
+          <option value="EU Directive on Pay Transparency (Project Quan)">EU Directive on Pay Transparency (Project Quan)</option>
+          <option value="Go-Links Enhancements">Go-Links Enhancements</option>
+          <option value="Location Accuracy and Movement">Location Accuracy and Movement</option>
+          <option value="Mexico Savings Scheme">Mexico Savings Scheme</option>
+          <option value="NY Sick Leave Expansion">NY Sick Leave Expansion</option>
+          <option value="Non-US Employee Benefit Administration (Project IBIS)">Non-US Employee Benefit Administration (Project IBIS)</option>
+          <option value="Oribi: Phase 4.0 - Benefits Portal">Oribi: Phase 4.0 - Benefits Portal</option>
+          <option value="Oribi: Phase 4.0 - ELT">Oribi: Phase 4.0 - ELT</option>
+          <option value="Payroll: Detailed Tax Report for Irish Tax Authority">Payroll: Detailed Tax Report for Irish Tax Authority</option>
+          <option value="Project Aeron (Position Mgmt)">Project Aeron (Position Mgmt)</option>
+          <option value="Project Taj">Project Taj</option>
+          <option value="Receipt OCR &amp; Email Ingestion">Receipt OCR &amp; Email Ingestion</option>
+          <option value="Skills Data Foundation: TArc Enhancements (WD Extend)">Skills Data Foundation: TArc Enhancements (WD Extend)</option>
+          <option value="Skills Data Foundation: WD to SR Integrations">Skills Data Foundation: WD to SR Integrations</option>
+          <option value="TDE - Committed Roadmap Items (e.g. WD Feedback integration)">TDE - Committed Roadmap Items (e.g. WD Feedback integration)</option>
+          <option value="TDE Enhancements for FY23 Annual Review &amp; FY24 Midcycle">TDE Enhancements for FY23 Annual Review &amp; FY24 Midcycle</option>
+          <option value="TDE Tools: CORP to PROD Migration">TDE Tools: CORP to PROD Migration</option>
+          <option value="WFAC ROB Updates">WFAC ROB Updates</option>
+          <option value="Workday Release 2026R1">Workday Release 2026R1</option>
+          <option value="Workday for Succession Planning - Discovery">Workday for Succession Planning - Discovery</option>
+          <option value="Workforce Planning - Position Management Phase 1">Workforce Planning - Position Management Phase 1</option>
+        </optgroup>
+        <optgroup label="Infra &amp; Platform">
+          <option value="Belgium New Entity Phase 1">Belgium New Entity Phase 1</option>
+          <option value="C0: Fix WD &amp; LiL Integration">C0: Fix WD &amp; LiL Integration</option>
+          <option value="Copilot Studio: Discovery &amp; Enablement">Copilot Studio: Discovery &amp; Enablement</option>
+          <option value="Data Standardization [Guardian]">Data Standardization [Guardian]</option>
+          <option value="Data support for Anaplan/Roster Mgmt Tool (FY24 Territory Planning)">Data support for Anaplan/Roster Mgmt Tool (FY24 Territory Planning)</option>
+          <option value="Databridge - Payroll Recon Tool">Databridge - Payroll Recon Tool</option>
+          <option value="EI Dashboard Live - Improve Refresh Cadence">EI Dashboard Live - Improve Refresh Cadence</option>
+          <option value="EVS Table -  Data Update">EVS Table -  Data Update</option>
+          <option value="GitHub Migration">GitHub Migration</option>
+          <option value="Global Sales: Credit Foundations - LOA">Global Sales: Credit Foundations - LOA</option>
+          <option value="Legacy Integrations Phase 2">Legacy Integrations Phase 2</option>
+          <option value="MFT Migration">MFT Migration</option>
+          <option value="Metadata/Semantic Layer">Metadata/Semantic Layer</option>
+          <option value="Migration of Mariner2 to Azure Linux 3">Migration of Mariner2 to Azure Linux 3</option>
+          <option value="PA Data Foundations (incl Workforce Analytics Metadata)">PA Data Foundations (incl Workforce Analytics Metadata)</option>
+          <option value="Project Firebird (Alteryx)">Project Firebird (Alteryx)</option>
+          <option value="Project Harbor (Stretch Goal)">Project Harbor (Stretch Goal)</option>
+          <option value="Project Relic - Document Management Discovery">Project Relic - Document Management Discovery</option>
+          <option value="Project Skyline - Workforce Talent Planner Tool">Project Skyline - Workforce Talent Planner Tool</option>
+          <option value="Prototyping for Privacy Review Process">Prototyping for Privacy Review Process</option>
+          <option value="SNOW HRSD DWH Integration">SNOW HRSD DWH Integration</option>
+          <option value="Security Log Ingestion - Workday">Security Log Ingestion - Workday</option>
+          <option value="TPE System Metrics">TPE System Metrics</option>
+          <option value="TaDa Powered by Visier">TaDa Powered by Visier</option>
+          <option value="Tableau to Power BI Migration">Tableau to Power BI Migration</option>
+          <option value="Testing Transformation Powered by AI">Testing Transformation Powered by AI</option>
+          <option value="Workday File Refresh Automation">Workday File Refresh Automation</option>
+          <option value="Workforce Planning and Forecasting Tool (Discovery)">Workforce Planning and Forecasting Tool (Discovery)</option>
+          <option value="WpA (Workplace Analytics)">WpA (Workplace Analytics)</option>
+        </optgroup>
+        <optgroup label="Recruit">
+          <option value="C0: Apply Connect">C0: Apply Connect</option>
+          <option value="C0: LI Career Hub Charter  (LiL/WD Integration) OrgSync">C0: LI Career Hub Charter  (LiL/WD Integration) OrgSync</option>
+          <option value="C0: LiHA Applicant Evaluation Charter">C0: LiHA Applicant Evaluation Charter</option>
+          <option value="Candidate Fraud - Discovery">Candidate Fraud - Discovery</option>
+          <option value="Candidate Fraud: Anti-Cheat Interview Intelligence - BrightHire Discovery">Candidate Fraud: Anti-Cheat Interview Intelligence - BrightHire Discovery</option>
+          <option value="Candidate Fraud: Anti-Cheat Interview Intelligence - Build &amp; Launch">Candidate Fraud: Anti-Cheat Interview Intelligence - Build &amp; Launch</option>
+          <option value="Candidate Fraud: Anti-Cheat Interview Intelligence - CoderPad Discovery">Candidate Fraud: Anti-Cheat Interview Intelligence - CoderPad Discovery</option>
+          <option value="Candidate Fraud: Identity &amp; Credential Verification - Build &amp; Launch">Candidate Fraud: Identity &amp; Credential Verification - Build &amp; Launch</option>
+          <option value="Candidate Fraud: Identity &amp; Credential Verification - Discovery">Candidate Fraud: Identity &amp; Credential Verification - Discovery</option>
+          <option value="FY26 SmartRecruiters Enhancements">FY26 SmartRecruiters Enhancements</option>
+          <option value="HackerRank/CoderPad FY26 ROB">HackerRank/CoderPad FY26 ROB</option>
+          <option value="Interview Intelligence Pilot for Non-Eng">Interview Intelligence Pilot for Non-Eng</option>
+          <option value="Interview Intelligence for Eng">Interview Intelligence for Eng</option>
+          <option value="Interview Intelligence for Non-Eng (Expansion)">Interview Intelligence for Non-Eng (Expansion)</option>
+          <option value="Letter Tool &amp; OLT Decommission APAC">Letter Tool &amp; OLT Decommission APAC</option>
+          <option value="Letter Tool &amp; OLT Decommission EMEAL">Letter Tool &amp; OLT Decommission EMEAL</option>
+          <option value="Project Aura - RP Integration for RC Tasks">Project Aura - RP Integration for RC Tasks</option>
+          <option value="Recruiting Portal ROB &amp;  Enhancements">Recruiting Portal ROB &amp;  Enhancements</option>
+          <option value="SR ROB/Releases">SR ROB/Releases</option>
+          <option value="SR SmartCRM (Non-ET) - Pilot">SR SmartCRM (Non-ET) - Pilot</option>
+          <option value="ScreenIn">ScreenIn</option>
+          <option value="TAM Expansion ARM (Designation)">TAM Expansion ARM (Designation)</option>
+          <option value="Update NHI (Malaysia, Japan, Mexico)">Update NHI (Malaysia, Japan, Mexico)</option>
+          <option value="Wage Transparency Automation">Wage Transparency Automation</option>
+          <option value="[ATS Project Rome]  - Phase 1">[ATS Project Rome]  - Phase 1</option>
+        </optgroup>
+        <optgroup label="App Sys Eng">
+          <option value="Exception Reports APAC and New Hire Reports EMEA​">Exception Reports APAC and New Hire Reports EMEA​</option>
+          <option value="Workday: Secure Credit Card Environment Upgrade / AMEX Integrations">Workday: Secure Credit Card Environment Upgrade / AMEX Integrations</option>
+        </optgroup>
+        <optgroup label="(Multi Pillar)">
+          <option value="Agentic Platform Discovery &amp; Enablement">Agentic Platform Discovery &amp; Enablement</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Objective / Problem Statement *</label>
+      <textarea id="objective" placeholder="What problem are you solving? What outcome are you driving?"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Project Type</label>
+      <div class="chips-grid" id="typeChips">
+        <div class="chip active" data-val="Product">Product</div>
+        <div class="chip" data-val="Platform">Platform</div>
+        <div class="chip" data-val="AI/ML">AI/ML</div>
+        <div class="chip" data-val="Integration">Integration</div>
+        <div class="chip" data-val="Data">Data</div>
+        <div class="chip" data-val="Migration">Migration</div>
+        <div class="chip" data-val="Compliance">Compliance</div>
+        <div class="chip" data-val="Infrastructure">Infra</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Delivery Stage</label>
+      <div class="chips-grid" id="stageChips">
+        <div class="chip active" data-val="Discovery">Discovery</div>
+        <div class="chip" data-val="Build">Build</div>
+        <div class="chip" data-val="Testing">Testing</div>
+        <div class="chip" data-val="Launch">Launch</div>
+        <div class="chip" data-val="Post-Launch">Post-Launch</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Key Stakeholders</label>
+      <input id="stakeholders" type="text" placeholder="e.g. CPO, Eng Lead, Finance, Legal, Ops" />
+    </div>
+
+    <div class="form-group">
+      <label>Systems / Tools Involved</label>
+      <input id="systems" type="text" placeholder="e.g. Salesforce, AWS, Stripe, internal API" />
+    </div>
+
+    <div class="form-group">
+      <label>Timeline</label>
+      <input id="timeline" type="text" placeholder="e.g. Q2 2025 · 12 weeks · Go-live June 30" />
+    </div>
+
+    <div class="form-group">
+      <label>Team Size (optional)</label>
+      <input id="teamSize" type="text" placeholder="e.g. 3 squads, 18 engineers, 2 PMs" />
+    </div>
+
+    <div class="divider"></div>
+
+    <div>
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <div class="panel-title" style="margin:0">Select Documents to Generate</div>
+      </div>
+
+      <div class="doc-grid" id="docGrid">
+
+        <!-- ── INITIATION ── -->
+        <div class="doc-card" data-doc="Business Impact">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Business Impact</div>
+          <div class="doc-desc">ROI & Risk Assessment</div>
+        </div>
+        <div class="doc-card" data-doc="Project Framework">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Project Framework</div>
+          <div class="doc-desc">Governance & Structure</div>
+        </div>
+        <div class="doc-card" data-doc="Initiative Brief">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Initiative Brief</div>
+          <div class="doc-desc">Workstreams & Owners</div>
+        </div>
+        <div class="doc-card" data-doc="Kickoff Deck">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Kickoff Deck</div>
+          <div class="doc-desc">Slide Outline & Content</div>
+        </div>
+
+        <!-- ── DISCOVERY / REQUIREMENTS ── -->
+        <div class="doc-card" data-doc="BRD">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">BRD</div>
+          <div class="doc-desc">Business Requirements</div>
+        </div>
+        <div class="doc-card active" data-doc="PRD">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">PRD</div>
+          <div class="doc-desc">Product Requirements</div>
+        </div>
+        <div class="doc-card" data-doc="Process Flow">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Process Flow</div>
+          <div class="doc-desc">Step-by-Step Process Design</div>
+        </div>
+        <div class="doc-card" data-doc="Change Management">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Change Mgmt</div>
+          <div class="doc-desc">Change Impact Assessment</div>
+        </div>
+
+        <!-- ── DESIGN / PLANNING ── -->
+        <div class="doc-card" data-doc="Tech Design">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Tech Design</div>
+          <div class="doc-desc">Architecture & APIs</div>
+        </div>
+        <div class="doc-card" data-doc="Roadmap">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Roadmap</div>
+          <div class="doc-desc">Phased Launch Timeline</div>
+        </div>
+        <div class="doc-card" data-doc="RACI">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">RACI Matrix</div>
+          <div class="doc-desc">Roles & Accountability</div>
+        </div>
+        <div class="doc-card" data-doc="Vendor Assessment">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Vendor Assessment</div>
+          <div class="doc-desc">Technical & Security Review</div>
+        </div>
+
+        <!-- ── BUILD ── -->
+        <div class="doc-card active" data-doc="Project Plan">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Project Plan</div>
+          <div class="doc-desc">Milestones & Schedule</div>
+        </div>
+        <div class="doc-card" data-doc="RAID Log">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">RAID Log</div>
+          <div class="doc-desc">Risks, Actions, Issues, Decisions</div>
+        </div>
+
+        <!-- ── TESTING ── -->
+        <div class="doc-card" data-doc="SIT Plan">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">SIT Plan</div>
+          <div class="doc-desc">Integration Testing</div>
+        </div>
+        <div class="doc-card active" data-doc="UAT Plan">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">UAT Plan</div>
+          <div class="doc-desc">User Acceptance Testing</div>
+        </div>
+
+        <!-- ── DEPLOYMENT ── -->
+        <div class="doc-card active" data-doc="Cutover Plan">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Cutover Plan</div>
+          <div class="doc-desc">Go-Live Execution</div>
+        </div>
+        <div class="doc-card active" data-doc="Hypercare Plan">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Hypercare Plan</div>
+          <div class="doc-desc">Post-Launch Support</div>
+        </div>
+
+        <!-- ── CROSS-CUTTING ── -->
+        <div class="doc-card" data-doc="Status Report">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Status Report</div>
+          <div class="doc-desc">Exec / Stakeholder Update</div>
+        </div>
+        <div class="doc-card" data-doc="Weekly Update">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Weekly Update</div>
+          <div class="doc-desc">Engineering Planning Update</div>
+        </div>
+        <div class="doc-card" data-doc="Project Comms">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Project Comms</div>
+          <div class="doc-desc">Stakeholder Email & Updates</div>
+        </div>
+        <div class="doc-card" data-doc="Exec Summary">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Exec Summary</div>
+          <div class="doc-desc">Comms Consolidation</div>
+        </div>
+        <div class="doc-card" data-doc="Meeting Notes">
+          <div class="doc-check">✓</div>
+          <div class="doc-name">Meeting Notes</div>
+          <div class="doc-desc">Transcript to Action Items</div>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="btn-generate" id="generateBtn" onclick="generatePrompts()">
+      ⚡ Generate Prompts
+    </button>
+
+  </div>
+
+  <!-- RIGHT: OUTPUT PANEL -->
+  <div class="right-panel">
+    <div class="right-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <h2>Generated Prompts</h2>
+        <span class="prompt-count" id="promptCount">0 prompts</span>
+      </div>
+      <button class="btn-copy-all" id="copyAllBtn" onclick="copyAll()" style="display:none">
+        Copy All
+      </button>
+    </div>
+    <div class="output-area" id="outputArea">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">📄</div>
+        <div class="empty-title">No prompts generated yet</div>
+        <div class="empty-sub">
+          Fill in your project context on the left, select the documents you need, and hit Generate Prompts.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let selectedType = 'Product';
+let selectedStage = 'Discovery';
+let selectedDocs = new Set(['PRD', 'Project Plan', 'UAT Plan', 'Cutover Plan', 'Hypercare Plan']);
+
+// ─── CHIPS: single-select ────────────────────────────────────────────────────
+document.querySelectorAll('#typeChips .chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('#typeChips .chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    selectedType = c.dataset.val;
+  });
+});
+
+document.querySelectorAll('#stageChips .chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('#stageChips .chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    selectedStage = c.dataset.val;
+  });
+});
+
+// ─── DOC CARDS: multi-select ─────────────────────────────────────────────────
+document.querySelectorAll('.doc-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const doc = card.dataset.doc;
+    if (selectedDocs.has(doc)) {
+      selectedDocs.delete(doc);
+      card.classList.remove('active');
+    } else {
+      selectedDocs.add(doc);
+      card.classList.add('active');
+    }
+  });
+});
+
+// ─── DOC CONFIG ──────────────────────────────────────────────────────────────
+const DOC_COLORS = {
+  'PRD':           { bg: 'rgba(91,106,249,0.2)',  text: '#a5adff', label: 'PRD' },
+  'BRD':           { bg: 'rgba(124,58,237,0.2)',  text: '#c084fc', label: 'BRD' },
+  'Project Plan':  { bg: 'rgba(20,184,166,0.2)',  text: '#5eead4', label: 'PLAN' },
+  'Tech Design':   { bg: 'rgba(249,115,22,0.2)',  text: '#fb923c', label: 'TECH' },
+  'SIT Plan':      { bg: 'rgba(245,158,11,0.2)',  text: '#fbbf24', label: 'SIT' },
+  'UAT Plan':      { bg: 'rgba(34,197,94,0.2)',   text: '#4ade80', label: 'UAT' },
+  'Cutover Plan':  { bg: 'rgba(239,68,68,0.2)',   text: '#f87171', label: 'CUT' },
+  'Hypercare Plan':{ bg: 'rgba(236,72,153,0.2)',  text: '#f472b6', label: 'CARE' },
+  'Status Report': { bg: 'rgba(99,102,241,0.2)',  text: '#818cf8', label: 'STAT' },
+  'RACI':          { bg: 'rgba(16,185,129,0.2)',  text: '#34d399', label: 'RACI' },
+  'Change Management': { bg: 'rgba(251,191,36,0.2)',  text: '#fbbf24', label: 'CHG' },
+  'Business Impact':   { bg: 'rgba(16,185,129,0.2)',  text: '#34d399', label: 'BIZ' },
+  'Roadmap':           { bg: 'rgba(59,130,246,0.2)',   text: '#60a5fa', label: 'MAP' },
+  'RAID Log':          { bg: 'rgba(239,68,68,0.2)',    text: '#f87171', label: 'RAID' },
+  'Initiative Brief':  { bg: 'rgba(168,85,247,0.2)',   text: '#c084fc', label: 'INIT' },
+  'Process Flow':      { bg: 'rgba(20,184,166,0.2)',   text: '#2dd4bf', label: 'PROC' },
+  'Vendor Assessment': { bg: 'rgba(245,158,11,0.2)',   text: '#fcd34d', label: 'VND' },
+  'Kickoff Deck':      { bg: 'rgba(236,72,153,0.2)',   text: '#f472b6', label: 'DECK' },
+  'Weekly Update':     { bg: 'rgba(99,102,241,0.2)',   text: '#818cf8', label: 'WKY' },
+  'Project Comms':     { bg: 'rgba(6,182,212,0.2)',    text: '#22d3ee', label: 'COM' },
+  'Exec Summary':      { bg: 'rgba(34,197,94,0.2)',    text: '#4ade80', label: 'EXEC' },
+  'Meeting Notes':     { bg: 'rgba(156,163,175,0.2)',  text: '#9ca3af', label: 'MTG' },
+  'Project Framework': { bg: 'rgba(251,146,60,0.2)',   text: '#fb923c', label: 'FWK' },
+};
+
+const DOC_SUBTITLES = {
+  'PRD':            'Product Requirements Document',
+  'BRD':            'Business Requirements Document',
+  'Project Plan':   'Milestone & Delivery Plan',
+  'Tech Design':    'Technical Design & Architecture',
+  'SIT Plan':       'System Integration Test Plan',
+  'UAT Plan':       'User Acceptance Test Plan',
+  'Cutover Plan':   'Go-Live Cutover Runbook',
+  'Hypercare Plan': 'Post-Launch Hypercare Plan',
+  'Status Report':  'Exec / Stakeholder Status Update',
+  'RACI':              'RACI Responsibility Matrix',
+  'Change Management':  'Change Impact Assessment',
+  'Business Impact':    'Business Impact & ROI Assessment',
+  'Roadmap':            'Phased Launch & Delivery Roadmap',
+  'RAID Log':           'Risks, Actions, Issues & Decisions Log',
+  'Initiative Brief':   'Workstreams, Owners & Initiative Breakdown',
+  'Process Flow':       'Step-by-Step Process Design',
+  'Vendor Assessment':  'Technical & Security Vendor Review',
+  'Kickoff Deck':       'Project Kickoff Slide Outline & Content',
+  'Weekly Update':      'Weekly Engineering Planning Update',
+  'Project Comms':      'Stakeholder Email & Comms Drafts',
+  'Exec Summary':       'Executive Comms Consolidation',
+  'Meeting Notes':      'Meeting Transcript → Action Items',
+  'Project Framework':  'Governance, Structure & RAID Framework',
+};
+
+// ─── PROMPT TEMPLATES ────────────────────────────────────────────────────────
+function buildPrompt(docType, ctx) {
+  const { name, objective, type, stage, stakeholders, systems, timeline, teamSize } = ctx;
+
+  const base = `You are an expert ${type} program manager and product leader with 15+ years of experience delivering complex programs.\n\n`;
+
+  const templates = {
+
+'PRD': `${base}Generate a detailed, production-quality PRD (Product Requirements Document) for the following project.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Stakeholders: ${stakeholders || 'CPO, Engineering Lead, Design, Ops'}
+Systems: ${systems || 'To be defined'}
+Timeline: ${timeline || 'To be defined'}
+Stage: ${stage}
+
+---
+INSTRUCTIONS
+---
+Write the PRD as if it will be reviewed by a CPO and used directly by an engineering team to build. Be specific, not generic. Avoid filler language.
+
+Output the following sections:
+
+1. EXECUTIVE SUMMARY
+   - Problem being solved (user pain + business impact)
+   - Proposed solution in 2-3 sentences
+   - Success metrics (quantified where possible)
+
+2. BACKGROUND & CONTEXT
+   - Current state and why it is insufficient
+   - Market/business drivers
+   - Prior attempts or related work
+
+3. GOALS & NON-GOALS
+   - Goals: what this project will achieve (SMART format)
+   - Non-Goals: explicit scope exclusions with reasoning
+
+4. USER PERSONAS & JOBS TO BE DONE
+   - 2-3 user personas with role, context, and unmet need
+   - JTBD statement for each
+
+5. REQUIREMENTS
+   - Functional Requirements (numbered, prioritized P0/P1/P2)
+   - Non-Functional Requirements (performance, reliability, security, scalability)
+   - Each requirement: ID, description, acceptance criteria, priority
+
+6. USER FLOWS & KEY SCENARIOS
+   - 3-5 critical user flows described as step-by-step scenarios
+   - Happy path + 1 edge case per flow
+
+7. CONSTRAINTS & DEPENDENCIES
+   - Technical constraints
+   - Regulatory/compliance constraints
+   - External dependencies (teams, systems, vendors)
+
+8. RISKS & MITIGATIONS
+   - Top 5 risks (likelihood, impact, mitigation, owner)
+
+9. OPEN QUESTIONS
+   - Unresolved decisions with owner and due date
+
+10. APPENDIX
+    - Glossary, reference links, related docs
+
+Format: Use headers, numbered lists, and tables where appropriate. Make every section actionable.`,
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+'BRD': `${base}Generate a detailed, stakeholder-ready BRD (Business Requirements Document) for the following project.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Stakeholders: ${stakeholders || 'Business Sponsor, Finance, Legal, Operations'}
+Systems: ${systems || 'To be defined'}
+Timeline: ${timeline || 'To be defined'}
+
+---
+INSTRUCTIONS
+---
+Write for a business audience — clear, structured, no unnecessary technical jargon. This BRD should bridge business intent and delivery execution.
+
+Output the following sections:
+
+1. BUSINESS OVERVIEW
+   - Business problem or opportunity
+   - Strategic alignment (which OKR/initiative this supports)
+   - Sponsoring executive and business owner
+
+2. BUSINESS OBJECTIVES
+   - Primary objectives (SMART)
+   - KPIs and success criteria
+   - Baseline metrics (current state)
+
+3. SCOPE
+   - In-Scope: business processes, geographies, user groups, systems
+   - Out-of-Scope: explicitly excluded items
+
+4. BUSINESS REQUIREMENTS (numbered list)
+   - Each item: BR-ID, requirement description, business rationale, priority (Must/Should/Could)
+
+5. PROCESS FLOWS (AS-IS → TO-BE)
+   - Current process narrative
+   - Future state process narrative
+   - Key process changes highlighted
+
+6. STAKEHOLDER REGISTER
+   - Stakeholder, role, interest, influence, engagement level
+
+7. ASSUMPTIONS & CONSTRAINTS
+   - Business assumptions made
+   - Budget, resource, regulatory constraints
+
+8. RISKS (business perspective)
+   - Business risk, likelihood, impact, owner, mitigation
+
+9. APPROVAL & SIGN-OFF
+   - Approval matrix with names, roles, sign-off date fields
+
+Format: Tables for requirements and stakeholders. Clear numbered requirements. Executive-friendly tone.`,
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+'Project Plan': `${base}Generate a detailed, execution-ready Project Plan for the following program.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Stakeholders: ${stakeholders || 'Engineering Lead, PM, Delivery Manager'}
+Systems: ${systems || 'To be defined'}
+Timeline: ${timeline || 'To be defined'}
+Team: ${teamSize || 'Cross-functional'}
+Stage: ${stage}
+
+---
+INSTRUCTIONS
+---
+Generate a project plan that a delivery manager would use to run weekly standups and exec reviews. Be specific about sequencing, dependencies, and risks. Avoid high-level platitudes.
+
+Output the following sections:
+
+1. PROJECT CHARTER SUMMARY
+   - Problem statement (1 paragraph)
+   - Delivery approach (Agile / Waterfall / Hybrid)
+   - Key constraints (budget, timeline, resources)
+
+2. MILESTONE PLAN (table format)
+   - Milestone name | Description | Target Date | Owner | Dependencies | Status
+   - Cover: Kickoff → Discovery → Design → Build → Testing → Cutover → Go-Live → Hypercare
+
+3. PHASE BREAKDOWN (for each phase)
+   - Objectives of the phase
+   - Key deliverables
+   - Entry criteria / Exit criteria
+   - Resource involvement
+   - Duration estimate
+
+4. DEPENDENCY MAP
+   - Internal dependencies (cross-team)
+   - External dependencies (vendors, APIs, approvals)
+   - Dependency risk rating
+
+5. RESOURCE PLAN
+   - Roles required per phase
+   - Named owners where known
+   - Capacity flags or gaps
+
+6. RISK REGISTER
+   - Risk | Probability | Impact | Risk Score | Mitigation | Owner | Status
+   - Minimum 8 risks
+
+7. DECISION LOG
+   - Pending decisions with owner and due date
+
+8. COMMUNICATION PLAN
+   - Cadence, audience, format, owner for: standups, steering, exec reviews, stakeholder updates
+
+9. ASSUMPTIONS & CONSTRAINTS
+
+Format: Tables for milestones and risks. Phases should be scannable. Suitable for program reviews.`,
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+'Tech Design': `${base}Generate a Technical Design Document (TDD) / Architecture Spec for the following project.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Systems Involved: ${systems || 'To be defined'}
+Timeline: ${timeline || 'To be defined'}
+
+---
+INSTRUCTIONS
+---
+Write for senior engineers and architects. Be specific about design decisions, trade-offs, and data flows. Avoid vague architecture diagrams in words — describe them precisely.
+
+Output the following sections:
+
+1. TECHNICAL OVERVIEW
+   - What is being built and why
+   - High-level architecture summary (2-3 paragraphs)
+   - Design principles guiding this implementation
+
+2. SYSTEM ARCHITECTURE
+   - Component breakdown (with responsibilities)
+   - Service interaction diagram (described in text if visual not possible)
+   - Data flow narrative (end-to-end)
+
+3. DATA MODEL
+   - Key entities and attributes
+   - Relationships
+   - Data storage approach (DB type, schema design decisions)
+
+4. API DESIGN
+   - Key API endpoints (method, path, request/response structure)
+   - Auth strategy
+   - Error handling approach
+
+5. INTEGRATION POINTS
+   - System-to-system integrations
+   - Protocol, auth, data format for each
+   - Fallback/retry strategy
+
+6. NON-FUNCTIONAL REQUIREMENTS & HOW THEY ARE MET
+   - Performance targets and approach
+   - Reliability / SLA
+   - Security controls
+   - Scalability plan
+
+7. DEPLOYMENT & INFRASTRUCTURE
+   - Environments (dev / staging / prod)
+   - CI/CD pipeline summary
+   - Infrastructure-as-Code approach
+
+8. KNOWN TRADE-OFFS & ALTERNATIVES CONSIDERED
+   - Options evaluated, chosen approach, and rationale
+
+9. OPEN TECHNICAL DECISIONS
+   - Decision needed | Proposed approach | Owner | Deadline
+
+Format: Code-block friendly. Technical but not inaccessible to senior PMs. Include rationale for decisions.`,
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+'SIT Plan': `${base}Generate a detailed SIT (System Integration Testing) Plan for the following project.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Systems Involved: ${systems || 'To be defined'}
+Timeline: ${timeline || 'To be defined'}
+Stakeholders: ${stakeholders || 'QA Lead, Engineering, Ops'}
+
+---
+INSTRUCTIONS
+---
+Write a SIT plan that an engineering/QA team would execute. Focus on integration boundaries, data contracts, failure scenarios, and go/no-go criteria.
+
+Output the following sections:
+
+1. SIT SCOPE & OBJECTIVES
+   - What is being tested and why
+   - Integration boundaries in scope / out of scope
+
+2. TEST ENVIRONMENT SETUP
+   - Required environments and configurations
+   - Data setup requirements
+   - External system stubs / mocks vs. live systems
+
+3. INTEGRATION TEST SCENARIOS (table)
+   - Test ID | Integration Point | Scenario | Steps | Expected Result | Pass/Fail | Notes
+   - Minimum 10 scenarios covering: happy path, error states, edge cases, volume/load
+
+4. DATA VALIDATION REQUIREMENTS
+   - Data contract checks
+   - Reconciliation points
+   - Data quality thresholds
+
+5. DEFECT MANAGEMENT
+   - Defect logging process
+   - Severity levels and SLAs
+   - Escalation path
+
+6. ENTRY & EXIT CRITERIA
+   - What must be true BEFORE SIT begins
+   - What must be true to EXIT SIT and proceed to UAT
+
+7. RISKS & MITIGATIONS
+   - Integration-specific risks
+
+8. SIT SCHEDULE (milestones table)
+   - Phase | Activities | Owner | Start | End | Status
+
+Format: Tables for test scenarios. Actionable and engineering-ready.`,
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+'UAT Plan': `${base}Generate a detailed UAT (User Acceptance Testing) Plan for the following project.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Systems: ${systems || 'To be defined'}
+Stakeholders / UAT Participants: ${stakeholders || 'Business users, Product Owner, Ops, Finance'}
+Timeline: ${timeline || 'To be defined'}
+Stage: ${stage}
+
+---
+INSTRUCTIONS
+---
+Write a UAT plan that business users and a PM would use to run acceptance testing. Focus on real-world scenarios, acceptance criteria, and clear pass/fail conditions. No engineering jargon.
+
+Output the following sections:
+
+1. UAT OVERVIEW
+   - Purpose of UAT
+   - What is being validated (business scenarios, not just features)
+   - Who is responsible for UAT
+
+2. UAT SCOPE
+   - In-scope: user journeys, business processes, roles
+   - Out-of-scope: explicit exclusions
+
+3. UAT PARTICIPANTS & ROLES
+   - Name/Role | Responsibilities | Availability | Sign-off Authority
+
+4. TEST ENVIRONMENT & DATA
+   - Environment details
+   - Test data requirements (anonymized/synthetic if needed)
+   - Access provisioning requirements
+
+5. UAT TEST SCENARIOS (table)
+   - Test ID | Business Scenario | User Role | Steps | Expected Outcome | Actual Outcome | Status | Notes
+   - Minimum 12 scenarios covering: end-to-end flows, error handling, edge cases, integration touch points
+
+6. DEFECT CLASSIFICATION & PROCESS
+   - Severity levels (Critical/High/Medium/Low) with definitions
+   - Defect lifecycle (log → assign → fix → retest → close)
+   - Decision: what defect level blocks go-live?
+
+7. ENTRY CRITERIA (before UAT starts)
+   - SIT sign-off
+   - Test environment stable
+   - Test data ready
+   - Participants trained
+
+8. EXIT CRITERIA / GO-LIVE GATE
+   - Pass rate required (e.g., 100% P0, 95% P1)
+   - Max open defects allowed per severity
+   - Sign-off process
+
+9. UAT SCHEDULE (table)
+   - Week | Activities | Owner | Status
+
+10. SIGN-OFF MATRIX
+    - Stakeholder | Role | Sign-off Date | Notes
+
+Format: Tables for test scenarios and sign-off. Written for non-technical business stakeholders. Practical.`,
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+'Cutover Plan': `${base}Generate a detailed Cutover Plan / Go-Live Runbook for the following project.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Systems Involved: ${systems || 'To be defined'}
+Stakeholders: ${stakeholders || 'Delivery Manager, Eng Lead, Ops, Business Lead'}
+Timeline: ${timeline || 'To be defined'}
+
+---
+INSTRUCTIONS
+---
+Write a cutover runbook that can be executed minute-by-minute during go-live. This is an operational document — it must be precise, sequenced, and unambiguous. Every step needs an owner and a time estimate.
+
+Output the following sections:
+
+1. CUTOVER OVERVIEW
+   - Go-live date, time window, and approach (big bang / phased / dark launch)
+   - Rollback decision point and criteria
+   - Key contacts and escalation path (names, roles, comms channel)
+
+2. PRE-CUTOVER CHECKLIST (T-5 days through T-1 hour)
+   - Task | Owner | Due Date/Time | Status | Notes
+   - Cover: environment readiness, data migration prep, stakeholder comms sent, support team briefed, monitoring configured, rollback tested
+
+3. CUTOVER RUNBOOK — STEP BY STEP (table)
+   - Step # | Time (T+) | Activity | Owner | System/Tool | Expected Output | Verified (Y/N) | Notes
+   - Sequence EVERY action in order: cutover start → data migration → smoke tests → validation → go-live declaration
+   - Include parallel tracks if applicable
+
+4. SMOKE TEST CHECKLIST (post-cutover validation)
+   - Test ID | Scenario | Owner | Pass Criteria | Result
+
+5. GO-LIVE DECLARATION CRITERIA
+   - What must be true to declare go-live successful
+   - Who has authority to declare go-live
+
+6. ROLLBACK PLAN
+   - Trigger conditions (what forces a rollback decision)
+   - Rollback steps (numbered, with owners and time estimates)
+   - Rollback decision authority
+   - Communication on rollback
+
+7. CUTOVER COMMUNICATION PLAN
+   - Audience | Message | Channel | Time | Owner
+   - Cover: T-1 week, T-1 day, T-0 start, T-0 complete, T+1 hour status
+
+8. POST-CUTOVER WATCH (first 2 hours)
+   - Key metrics to monitor
+   - Thresholds and alert owners
+
+Format: Tables throughout. Chronological and executable. Zero ambiguity on ownership. Suitable for a war room.`,
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+'Hypercare Plan': `${base}Generate a detailed Hypercare / Post-Launch Support Plan for the following project.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Systems: ${systems || 'To be defined'}
+Stakeholders: ${stakeholders || 'PM, Eng Lead, Support, Ops, Business Lead'}
+Timeline: ${timeline || 'To be defined'}
+Go-Live Date: [Insert go-live date]
+
+---
+INSTRUCTIONS
+---
+Write a hypercare plan that will govern the first 30 days post-launch. It should define who is watching, what they are watching, how issues are triaged, and how and when normal support BAU begins.
+
+Output the following sections:
+
+1. HYPERCARE OVERVIEW
+   - Purpose and duration (e.g., 30 days post go-live)
+   - Hypercare team structure and war room setup
+   - Escalation hierarchy
+
+2. MONITORING & ALERTING SETUP
+   - Key metrics to monitor (list each with threshold/SLA)
+   - Tools and dashboards used
+   - Alert owners per metric
+   - Monitoring cadence (real-time / hourly / daily)
+
+3. ISSUE TRIAGE PROCESS
+   - Severity classification (P0–P3) with definitions specific to this product
+   - Response SLAs per severity
+   - Triage workflow: detect → log → assign → investigate → fix → verify → close
+
+4. HYPERCARE ROSTER & SCHEDULE
+   - Week | On-Call Owner | Backup | Hours Coverage | Escalation Contact
+
+5. KNOWN RISKS & WATCH ITEMS
+   - Risk | Likelihood | Impact | Monitoring Trigger | Pre-planned Response
+
+6. DAILY HEALTH CHECK (template)
+   - Template for daily standup during hypercare:
+     - Volume metrics
+     - Error rates
+     - Open incidents (count by severity)
+     - Issues resolved
+     - Watch items for next 24h
+
+7. STAKEHOLDER COMMUNICATION CADENCE
+   - Report | Audience | Frequency | Owner | Format
+
+8. HYPERCARE EXIT CRITERIA
+   - Specific thresholds that must be met to transition from hypercare to BAU
+   - Who approves the transition
+   - Transition date and plan
+
+9. LESSONS LEARNED TRIGGER POINTS
+   - What triggers a retrospective
+   - When and who runs it
+
+Format: Tables for roster and monitoring. Operationally practical. Written for both engineers and business stakeholders.`,
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+'Status Report': `${base}Generate an Exec-ready Status Report template and a sample completed report for the following project.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Stakeholders: ${stakeholders || 'CPO, CTO, COO, Steering Committee'}
+Timeline: ${timeline || 'To be defined'}
+Stage: ${stage}
+
+---
+INSTRUCTIONS
+---
+Write for a C-suite audience. Lead with status, not activity. Be direct about risks. Use RAG (Red/Amber/Green) status indicators. Maximum 1 page if printed.
+
+Output the following sections:
+
+1. HEADER
+   - Project name, report date, reporting period, overall RAG status, prepared by
+
+2. ONE-LINE SUMMARY
+   - Single sentence: overall health and key highlight this week
+
+3. STATUS DASHBOARD (table)
+   - Workstream | RAG | Comment (1 line)
+   - Include: Schedule, Budget, Scope, Risks, Resources, Stakeholders
+
+4. PROGRESS THIS PERIOD
+   - 3-5 bullet points: what was completed (outcomes, not activities)
+
+5. PLANNED NEXT PERIOD
+   - 3-5 bullet points: what will be completed next
+
+6. KEY RISKS & ISSUES (table)
+   - ID | Risk/Issue | Impact | Owner | Mitigation/Status | RAG
+
+7. DECISIONS NEEDED
+   - Decision | Due Date | Owner | Context (1 line)
+
+8. KEY METRICS (if applicable)
+   - Metric | Target | Actual | Trend | Notes
+
+Format: Concise. RAG clearly indicated. Suitable for a 5-minute exec review. No jargon, no padding.`,
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+'RACI': `${base}Generate a RACI Matrix for the following project.
+
+---
+PROJECT CONTEXT
+---
+Project Name: ${name}
+Project Type: ${type}
+Objective: ${objective}
+Stakeholders: ${stakeholders || 'PM, Engineering Lead, Business Analyst, QA, Ops, Finance, Legal'}
+Systems: ${systems || 'To be defined'}
+Timeline: ${timeline || 'To be defined'}
+
+---
+INSTRUCTIONS
+---
+Create a RACI that is specific enough to resolve accountability disputes. Do not create a theoretical RACI — base it on real activities in a ${type} program of this type.
+
+Output the following sections:
+
+1. RACI LEGEND
+   - R = Responsible (does the work)
+   - A = Accountable (single owner, signs off)
+   - C = Consulted (input required)
+   - I = Informed (receives updates)
+
+2. RACI MATRIX (table)
+   - Activity | PM | Eng Lead | Product Owner | QA Lead | Business Owner | Ops | Legal/Compliance | Exec Sponsor
+   - Include 25+ activities across: Discovery, Requirements, Design, Build, Testing, Cutover, Go-Live, Post-Launch
+
+3. KEY ACCOUNTABILITY RULES
+   - There must be exactly 1 "A" per row
+   - Flag any activities with no clear Accountable owner
+
+4. ESCALATION OWNERS
+   - Workstream | Accountable Owner | Escalation Contact
+
+5. COMMON RACI GAPS IN ${type.toUpperCase()} PROGRAMS
+   - List 5 activities commonly missed in RACI for this type of project
+
+Format: Large table. Clear and unambiguous. Scannable in a steering meeting.`
+
+  };
+
+  
+templates['Change Management'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn with deep expertise in HR Technology change management.
+
+Generate a Change Management & Impact Assessment for this project. Write for stakeholders who need to understand the people, process, and system impact of this change.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. CHANGE OVERVIEW
+   - What is changing, for whom, and why now
+   - Change type: process / technology / organizational / behavioral
+   - Scope of impact: teams, geographies, systems affected
+
+2. STAKEHOLDER IMPACT ANALYSIS
+   Table: Stakeholder Group | Current State | Future State | Impact Level (H/M/L) | Sentiment | Action Required
+
+3. CHANGE IMPACT BY DIMENSION
+   - People: roles affected, skill gaps, training needed
+   - Process: processes being retired, modified, or created
+   - Technology: systems being replaced or changed
+   - Data: migration, access changes, reporting impact
+
+4. CHANGE READINESS ASSESSMENT
+   - Readiness criteria per stakeholder group
+   - Current gaps and how to close them
+   - Change champions and resistance risks
+
+5. CHANGE MANAGEMENT PLAN (ADKAR)
+   Table: Activity | Audience | Owner | Timeline | Channel | Success Metric
+
+6. TRAINING PLAN
+   Table: Training | Audience | Format | Owner | Due Date | Completion Criteria
+
+7. COMMUNICATION PLAN
+   Table: Message | Audience | Channel | Timing | Owner
+
+8. RISKS & RESISTANCE MANAGEMENT
+   Table: Risk / Resistance | Trigger | Mitigation | Owner
+
+9. SUCCESS METRICS — 30 / 60 / 90 days post-launch`;
+})(ctx);
+
+templates['Business Impact'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn with expertise in business case development and investment justification.
+
+Generate a Business Impact Assessment for the project below, suitable for executive review.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. EXECUTIVE SUMMARY
+   - Top 3 business benefits in one sentence each
+   - Recommendation: proceed / pause / cancel with rationale
+
+2. PROBLEM & OPPORTUNITY
+   - Quantified cost of inaction (time, money, risk, employee experience)
+   - Strategic opportunity and urgency drivers
+
+3. BUSINESS BENEFITS
+   Table: Benefit | Category (Efficiency/Revenue/Risk/EX) | Quantification | Timeline | Confidence Level
+
+4. ROI ANALYSIS
+   - Total estimated investment (people, tools, time)
+   - Projected savings / value over 1-3 years
+   - Break-even point and ROI %
+
+5. RISK OF NOT INVESTING
+   Table: Risk | Probability | Business Impact | Cost of Inaction | Owner
+
+6. ALTERNATIVE OPTIONS CONSIDERED
+   Table: Option | Pros | Cons | Cost | Recommendation
+
+7. DEPENDENCIES & ASSUMPTIONS
+
+8. RECOMMENDATION & NEXT STEPS`;
+})(ctx);
+
+templates['Roadmap'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn. Generate a delivery Roadmap with phased timeline. Write for an exec audience and delivery team.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. ROADMAP OVERVIEW
+   - Vision: where we are going and why
+   - Delivery approach: phased / big bang / MVP-first and rationale
+   - Key constraints shaping the roadmap
+
+2. PHASED DELIVERY PLAN
+   For each phase: name, objective, deliverables, timeline, teams, dependencies, success criteria
+
+3. MILESTONE TIMELINE
+   Table: Milestone | Phase | Target Date | Owner | Dependencies | Status
+
+4. CAPABILITY BUILD-OUT SEQUENCE
+   - What gets delivered in what order and why
+   - What is deferred and rationale
+
+5. DEPENDENCY MAP ACROSS PHASES
+
+6. RISKS TO ROADMAP
+   Table: Risk | Phase Impacted | Probability | Impact | Mitigation | Owner
+
+7. ROADMAP ASSUMPTIONS`;
+})(ctx);
+
+templates['RAID Log'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn. Generate a RAID Log (Risks, Actions, Issues, Decisions) for use in weekly standups and steering reviews.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. RISKS REGISTER
+   Table: Risk ID | Description | Category | Probability (H/M/L) | Impact (H/M/L) | Score | Mitigation | Owner | Due Date | Status
+   Minimum 10 risks specific to this project, stage, and systems
+
+2. ACTIONS LOG
+   Table: Action ID | Action | Owner | Priority | Raised Date | Due Date | Status | Notes
+   Minimum 10 cross-team actions and open items
+
+3. ISSUES LOG
+   Table: Issue ID | Description | Impact | Raised By | Date | Owner | Resolution | Status
+
+4. DECISIONS LOG
+   Table: Decision ID | Decision | Context | Options | Decision Made | Made By | Date | Rationale
+
+5. RAID HEALTH SUMMARY
+   - Open item counts by category and severity
+   - Top 3 items requiring immediate exec attention
+   - Items past due date`;
+})(ctx);
+
+templates['Initiative Brief'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn. Break down this initiative into specific workstreams, owners, and delivery structure.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. INITIATIVE SUMMARY
+   - What, why, and expected outcome (one paragraph)
+   - Strategic alignment to TPE / LinkedIn priorities
+   - Executive sponsor and initiative owner
+
+2. WORKSTREAM BREAKDOWN
+   For each workstream: name, objective, scope, lead, team, timeline, milestones, dependencies
+
+3. WORKSTREAM MAP
+   Table: Workstream | Lead | Team | Start | End | Key Deliverables | Dependencies | Status
+
+4. GOVERNANCE MODEL
+   - Decision-making structure and escalation path
+   - Steering cadence and participants
+
+5. CROSS-WORKSTREAM DEPENDENCIES
+
+6. INITIATIVE RISKS
+   Table: Risk | Workstream Impacted | Mitigation | Owner
+
+7. SUCCESS CRITERIA — initiative-level metrics`;
+})(ctx);
+
+templates['Process Flow'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn with process engineering expertise. Generate a Process Flow document.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. PROCESS OVERVIEW
+   - Process name, purpose, trigger, and end state
+
+2. AS-IS PROCESS (Current State)
+   - Step-by-step narrative of today's process
+   - Pain points, manual steps, bottlenecks at each step
+   - Systems involved today
+
+3. TO-BE PROCESS (Future State)
+   Numbered steps — for each:
+   - Step name and description | Actor / role | System used | Input | Output | Decision points | SLA
+
+4. PROCESS FLOW SUMMARY
+   Table: Step # | Step Name | Actor | System | Input | Output | Decision? | SLA
+
+5. EXCEPTION HANDLING
+   - What happens when each step fails | Escalation path per exception
+
+6. PROCESS METRICS
+   - KPIs to measure efficiency | Baseline vs. target
+
+7. PROCESS GOVERNANCE — owner, change approval, review cadence`;
+})(ctx);
+
+templates['Vendor Assessment'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn with vendor evaluation expertise. Generate a Vendor Assessment for technical and security review.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. ASSESSMENT OVERVIEW
+   - Vendor and solution summary | Business need driving evaluation
+   - Assessment scope: technical, security, legal, commercial
+
+2. FUNCTIONAL FIT ANALYSIS
+   Table: Requirement | Priority | Vendor Capability | Gap | Notes
+
+3. TECHNICAL ASSESSMENT
+   - Architecture and integration approach (referencing actual systems listed)
+   - API capabilities, scalability, performance benchmarks
+   - Deployment model (SaaS / on-prem / hybrid) | Data residency
+
+4. SECURITY & PRIVACY REVIEW
+   - Auth model | Encryption (at rest / in transit)
+   - Compliance certs (SOC 2, ISO 27001, GDPR, CCPA)
+   - AI/ML model transparency and data usage
+   - Comparison to LinkedIn internal security standards
+
+5. COMMERCIAL ASSESSMENT
+   - Pricing model and TCO | Contract terms and SLAs | Vendor stability
+
+6. RISK ASSESSMENT
+   Table: Risk | Category | Severity | Mitigation | Owner
+
+7. VENDOR SCORECARD
+   Table: Dimension | Weight | Score (1-5) | Weighted Score | Notes
+   Dimensions: Functional Fit, Technical, Security, Commercial, Support, Strategic Alignment
+
+8. RECOMMENDATION — Proceed / Conditional / Reject with rationale and next steps`;
+})(ctx);
+
+templates['Kickoff Deck'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn. Generate a Project Kickoff Deck with slide-by-slide content for a mixed stakeholder and delivery team audience.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+Write the exact bullet content for each slide — not just the theme.
+
+SLIDE 1: TITLE — project name, date, presenter names
+SLIDE 2: AGENDA — meeting objectives and flow
+SLIDE 3: PROBLEM STATEMENT — specific, quantified business problem
+SLIDE 4: OBJECTIVE & SUCCESS CRITERIA — what we are building and how we measure success
+SLIDE 5: SCOPE — in and out, key assumptions
+SLIDE 6: DELIVERY APPROACH & PHASES — methodology and high-level milestone timeline
+SLIDE 7: TEAM & ROLES — who is in the room, RACI summary using stakeholders provided
+SLIDE 8: SYSTEMS & INTEGRATIONS — systems in scope, integration touchpoints
+SLIDE 9: RISKS & DEPENDENCIES — top 5 risks with owners, key blockers
+SLIDE 10: GOVERNANCE & CADENCE — standups, steering, escalation path
+SLIDE 11: IMMEDIATE NEXT STEPS — top 5 actions with owner and due date
+SLIDE 12: Q&A / OPEN ITEMS — parking lot template`;
+})(ctx);
+
+templates['Weekly Update'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn. Generate a Weekly Engineering Planning Update for delivery managers communicating to stakeholders and leadership.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. HEADER: Project: ${name} | Week of: [Date] | Health: [GREEN / AMBER / RED]
+
+2. THIS WEEK IN ONE LINE — the single most important thing that happened or needs attention
+
+3. ACCOMPLISHMENTS THIS WEEK
+   - 3-5 bullets: outcomes achieved (not tasks — what changed or was delivered)
+
+4. PLANNED FOR NEXT WEEK
+   - 3-5 bullets: what will be delivered, by whom, any items at risk of slipping
+
+5. BLOCKERS & ESCALATIONS
+   Table: Blocker | Impact | Owner | Help Needed From | Due Date
+
+6. RISKS THIS WEEK
+   Table: Risk | Change Since Last Week | Owner | Action
+
+7. METRICS SNAPSHOT (if applicable)
+   Table: Metric | Last Week | This Week | Target | Trend
+
+8. DECISIONS NEEDED
+   Table: Decision | Options | Recommended | Owner | Due Date
+
+Format: Scannable in under 2 minutes. Lead with what needs attention.`;
+})(ctx);
+
+templates['Project Comms'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn. Generate polished stakeholder communication drafts ready to send.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+Generate each of the following complete, ready-to-send email templates:
+
+1. PROJECT KICKOFF ANNOUNCEMENT
+   Subject line options (3 variants) + complete email body
+   Audience: stakeholders listed | Tone: professional and energizing
+
+2. PROJECT STATUS UPDATE (mid-delivery)
+   Subject line options + complete email body
+   Include: health summary, accomplishments, next steps, blockers, decisions needed
+
+3. GO-LIVE ANNOUNCEMENT
+   Subject line options + complete email body
+   Include: what launched, what changed, how to get help, known issues
+
+4. ESCALATION / RISK ALERT
+   Subject: [ATTENTION NEEDED] format + complete email body
+   Include: problem, impact, options, recommendation, response deadline
+
+5. HYPERCARE STATUS UPDATE
+   Subject + body: system health, open issues, monitoring status, next check-in
+
+Write the complete email body for each — not just an outline. Adjust tone per audience.`;
+})(ctx);
+
+templates['Exec Summary'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn. Generate an Executive Summary consolidating project updates into a single crisp exec-ready communication.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. ONE-PAGE EXECUTIVE SUMMARY (max 3 minutes to read)
+
+   SITUATION — Current state in 2-3 sentences, stage and overall health (RAG)
+
+   COMPLICATION — Most important risk, issue, or decision requiring exec awareness and why it matters now
+
+   RESOLUTION — Recommended action, what exec support is needed and by when
+
+2. KEY HIGHLIGHTS — 3-5 bullets: most important accomplishments since last update
+
+3. KEY RISKS & DECISIONS
+   Table: Item | Type (Risk/Decision) | Impact | Owner | Due Date | RAG
+
+4. WHAT GOOD LOOKS LIKE IN 30 DAYS — clear picture of success at next checkpoint
+
+5. ASKS FROM LEADERSHIP — specific, actionable requests with owners and dates
+
+Format: One page max. No jargon. Every word earns its place.`;
+})(ctx);
+
+templates['Meeting Notes'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn. Analyze the meeting transcript or notes below and produce structured, actionable output. If no transcript is provided, generate a meeting notes TEMPLATE for this project.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+[PASTE MEETING TRANSCRIPT OR NOTES HERE]
+
+1. MEETING SUMMARY
+   - Date, attendees, objective
+   - 3-5 sentence summary of what was discussed and decided
+
+2. KEY DECISIONS MADE
+   Table: Decision | Context | Made By | Date | Impact
+
+3. ACTION ITEMS
+   Table: Action # | Action | Owner | Due Date | Priority | Notes
+   Be specific — name + clear action, not vague tasks
+
+4. RISKS & ISSUES RAISED
+   Table: Item | Type (Risk/Issue) | Owner | Follow-up Required
+
+5. OPEN QUESTIONS / PARKING LOT
+   Table: Question | Raised By | Owner | Due Date
+
+6. NEXT MEETING — suggested agenda based on open actions and risks
+
+Format: Copy-paste ready for email or Confluence. Every item has a named owner.`;
+})(ctx);
+
+templates['Project Framework'] = (({name,objective,type,stage,stakeholders,systems,timeline,teamSize}) => {
+  const contextBlock = ['Project: '+name,'Objective: '+objective,stakeholders?'Stakeholders: '+stakeholders:'',systems?'Systems: '+systems:'',timeline?'Timeline: '+timeline:'',stage?'Stage: '+stage:''].filter(Boolean).join('\n');
+  return `You are a senior TPE Program Manager at LinkedIn. Generate a Project Framework establishing governance, structure, and operating model.
+
+━━━ PROJECT CONTEXT ━━━
+${contextBlock}
+━━━━━━━━━━━━━━━━━━━━━━
+
+1. FRAMEWORK OVERVIEW
+   - Purpose and delivery methodology (Agile / Waterfall / Hybrid) with rationale
+   - Guiding principles for this program
+
+2. GOVERNANCE STRUCTURE
+   - Steering committee: members, cadence, decision authority
+   - Working team: members, roles, cadence
+   - Escalation path: team → steering → exec
+   - Decision-making matrix: what lives at what level
+
+3. RACI SUMMARY
+   Table: Key Decision / Activity | PM | Eng Lead | Business Owner | Exec Sponsor
+   10 most critical decisions for this project
+
+4. OPERATING CADENCE
+   Table: Meeting | Participants | Frequency | Duration | Owner | Output
+
+5. RAID LOG STRUCTURE — template maintained by whom and reviewed in which forum
+
+6. DOCUMENTATION & ARTIFACT STANDARDS
+   - Key deliverables, owners, storage location, versioning, approval workflow
+
+7. CHANGE CONTROL PROCESS
+   - What triggers a change request | Approval path | Impact assessment requirements
+
+8. PROGRAM HEALTH METRICS
+   - How health is measured weekly | RAG criteria | Escalation thresholds`;
+})(ctx);
+
+return templates[docType] || `Generate a detailed ${docType} for project: ${name}. Objective: ${objective}. Type: ${type}. Stage: ${stage}.`;
+}
+
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const existing = document.getElementById('toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.id = 'toast';
+  t.textContent = msg;
+  const bg = type === 'warn' ? '#b24020' : '#057642';
+  t.style.cssText = `position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+    background:${bg};color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;
+    font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);
+    animation:fadeUp 0.2s ease;`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ─── GENERATE ────────────────────────────────────────────────────────────────
+function generatePrompts() {
+  const name        = document.getElementById('projectName').value.trim();
+  const objective   = document.getElementById('objective').value.trim();
+  const stakeholders= document.getElementById('stakeholders').value.trim();
+  const systems     = document.getElementById('systems').value.trim();
+  const timeline    = document.getElementById('timeline').value.trim();
+  const teamSize    = document.getElementById('teamSize').value.trim();
+
+  if (!name && !objective) {
+    showToast('Please select a project or enter an objective to generate prompts.', 'warn');
+    return;
+  }
+  if (selectedDocs.size === 0) {
+    showToast('Please select at least one document type.', 'warn');
+    return;
+  }
+
+  const ctx = {
+    name: name || '<project_name>',
+    objective: objective || '<objective>',
+    type: selectedType,
+    stage: selectedStage,
+    stakeholders: stakeholders || null,
+    systems: systems || null,
+    timeline: timeline || null,
+    teamSize: teamSize || null,
+  };
+
+  const outputArea = document.getElementById('outputArea');
+  const emptyState = document.getElementById('emptyState');
+  const promptCount = document.getElementById('promptCount');
+  const copyAllBtn = document.getElementById('copyAllBtn');
+
+  if (emptyState) emptyState.remove();
+  outputArea.innerHTML = '';
+
+  const docs = Array.from(selectedDocs);
+  docs.forEach((docType, i) => {
+    const prompt = buildPrompt(docType, ctx);
+    const color  = DOC_COLORS[docType] || { bg: 'rgba(99,102,241,0.2)', text: '#818cf8', label: docType.slice(0,4).toUpperCase() };
+    const subtitle = DOC_SUBTITLES[docType] || docType;
+    const wordCount = prompt.split(/\s+/).length;
+
+    const card = document.createElement('div');
+    card.className = 'prompt-card';
+    card.dataset.docType = docType;
+    card.innerHTML = `
+      <div class="prompt-card-header">
+        <div class="prompt-doc-label">
+          <span class="doc-badge" style="background:${color.bg};color:${color.text}">${color.label}</span>
+          <div>
+            <div class="prompt-title-text">${docType}</div>
+            <div class="prompt-subtitle">${subtitle}</div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-copy" onclick="copyPrompt(this, 'ta-${i}')">
+            <span>⎘</span> Copy
+          </button>
+        </div>
+      </div>
+      <div class="prompt-body">
+        <textarea class="prompt-textarea" id="ta-${i}">${prompt}</textarea>
+        <div class="prompt-meta">
+          <div class="meta-item"><span>~${wordCount} words</span></div>
+          <div class="meta-item"><span>Ready to paste into Claude / ChatGPT</span></div>
+        </div>
+      </div>
+    `;
+    outputArea.appendChild(card);
+  });
+
+  promptCount.textContent = `${docs.length} prompt${docs.length !== 1 ? 's' : ''}`;
+  copyAllBtn.style.display = 'block';
+}
+
+// ─── COPY ────────────────────────────────────────────────────────────────────
+function copyPrompt(btn, taId) {
+  const ta = document.getElementById(taId);
+  if (!ta) return;
+  navigator.clipboard.writeText(ta.value).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '<span>✓</span> Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<span>⎘</span> Copy';
+    }, 2000);
+  });
+}
+
+function copyAll() {
+  const all = [];
+  document.querySelectorAll('.prompt-textarea').forEach(ta => {
+    const docType = ta.closest('.prompt-card').dataset.docType;
+    all.push(`${'='.repeat(60)}\n${docType.toUpperCase()}\n${'='.repeat(60)}\n\n${ta.value}`);
+  });
+  navigator.clipboard.writeText(all.join('\n\n\n')).then(() => {
+    const btn = document.getElementById('copyAllBtn');
+    btn.textContent = '✓ All Copied!';
+    setTimeout(() => btn.textContent = 'Copy All', 2000);
+  });
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function pulse(id) {
+  const el = document.getElementById(id);
+  el.style.transform = 'scale(0.97)';
+  setTimeout(() => el.style.transform = '', 150);
+}
+
+
+// ─── TPE PROJECT DESCRIPTIONS ─────────────────────────────────────────────────
+const TPE_PROJECT_DESCRIPTIONS = {"C0: Apply Connect":"Update from Easy Apply to new technology (Apply Connect) and support testing with SR.\n\nOn April 1st, Apply Connect will be made available to customers using SmartRecruiters. Apply Connect (aka Easy Apply) allows job seekers to apply on LI with their profile and resume to all jobs posted on LI.","[ATS Project Rome]  - Phase 1":"Phase One https://microsoft.sharepoint.com/:p:/t/Builds/EVbBXhDxAgVPtsXLXRCUr4kBkvEbX5Lc2vYS8xbxbet-sw?e=r9pVnZ&nav=eyJzSWQiOjIxNDc0Njg1NDQsImNJZCI6MjQyMTU2OTQ4MH0 and PRD - https://docs.google.com/document/d/1PTM0uku65HYzEyNhgyPjY2WiYceQbNZclVWB-0GrCLE/edit","WpA (Workplace Analytics)":"Goal: In order to inform decisions for the global organization that will increase employee engagement and improve well-being, the People Analytics team will rollout out Workplace Analytics (WpA) & Glint analyses to all NAMER & APAC LinkedIn.","Data Standardization [Guardian]":"Goal: Standardize data quality of DWH and stakeholder dashboards.​ Implement a standardized framework for managing talent data security and privacy.​ Support self-service in data science and data subscription.​\n\nThis project will enable us to develop a robust structure in order to manage the availability, usability, integrity and security of Talent data with clear roles and responsibilities and associated frameworks for supporting GTO's vision, mission and goals. ​","Workday: Secure Credit Card Environment Upgrade / AMEX Integrations":"Goal: The change in the PCI environment for Workday starting March 2022 has necessitated a change in the current integrations.  \n\nThe integration file consists of Employee personal details and Credit card transactions to be in line with the current expense policies for the disbursement of credit card payments to AMEX.","DIBs Self ID: Phase 2 Employee (Workday)":"Implement enhanced Self ID for candidates and employees in the 21 countries where we have LI offices. Understand, measure and improve diversity, inclusion and belonging. \n\nPhase 2 countries to include: Mexico, Singapore, China, Japan, Hong Kong and Malaysia.","Go-Links Enhancements":"Goal: Bring go/links into the ehub experience for two reasons 1) a single portal to access and manage settings 2) remove dev infra management saving engineers time.","TDE Enhancements for FY23 Annual Review & FY24 Midcycle":"Engineering process to improve career profile tracking and promotion discussion processes","Workforce Planning - Position Management Phase 1":"Workforce Planning Goal: To enable a unified position tracking process enabled by technology to create a single source of truth for all positions & their status, as well to monitor employee movement across positions with minimal manual intervention.\n\nInactive supervisory org clean up is only part of the WFP PM project. Actual supervisory org clean up of active orgs and governance are separate projects.","Tableau to Power BI Migration":"Goal: As a part of this larger PA Workforce Data Strategy (backlogged project), a specific request to add a PA-owned business semantic layer, with a renewed focus on data governance. Implement Microsoft Analysis Services as the semantic layer to help address some of the technology issues we face today. This will allow People Analytics to consolidate all the data, model it in business terms, and present it for consumption.","Wage Transparency Automation":"Goal: The TA Flex team is looking for ways to automate the wage transparency language and compensation ranges so that we do not have to rely on Recruiters manually inputting into the job descriptions for both ATS: SR & HireIn","Oribi: Phase 4.0 - ELT":"Goal: Oribi Acquisition - Workday Expenses, Bravos, PerkUp, Globoforce, Total Rewards Portal, etc. enabled for Israel location","Oribi: Phase 4.0 - Benefits Portal":"Goal: Oribi Acquisition - Workday Expenses, Bravos, PerkUp, Globoforce, Total Rewards Portal, etc. enabled for Israel location","Candidate Fraud: Anti-Cheat Interview Intelligence - Build & Launch":"Is this the same as Candidate Fraud - Long Term Solution?","Interview Intelligence for Eng":"This is in discovery with Laura Sebo. Need project brief. TA scope including here for reference: https://microsoft.sharepoint.com/:w:/t/TAMROADMAP/IQD5gDNrsdvaQ4WphA6TiBONAU1iY6xvPXyB4VTWB44sQZI?e=K8g81O","Candidate Fraud: Identity & Credential Verification - Build & Launch":"Target pilot for Q4 FY26. May roll over into FY27 pending InfoSec and DPIA Governance review timelines and business decision on proposed 12 week pilot period."};
+
+
+
+// ─── SAMPLE DATA ─────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('projectName').value = '';
+  document.getElementById('objective').value = '';
+  document.getElementById('stakeholders').value = '';
+  document.getElementById('systems').value = '';
+  document.getElementById('timeline').value = '';
+  document.getElementById('teamSize').value = '';
+});
+
+
+// ─── TPE PROJECT SUGGESTIONS ──────────────────────────────────────────────────
+const TPE_SUGGESTIONS = {"Project Taj":{"stakeholders":"IT PM/Tech Lead: Akshay Dighe, Tarun Shukla\nHR Tech Partner: Barbara Porter\nRequesting Function: GTO, Finance\nSub-Function: HRBPs","systems":"SmartRecruiters (ATS), Workday, Integrations / MuleSoft, Data Platform / Snowflake, Internal Engineering, TPE + SNOW","timeline":"Q1 - FY25 → Q4 - FY26","teamSize":"5 team(s): Recruit, Empl Exp & WD Func, Integrations, Infra/Data, SW Eng"},"TaDa Powered by Visier":{"stakeholders":"IT PM/Tech Lead: Malik Thomas\nHR Tech Partner: Aaron Maxwell\nRequesting Function: GTO\nSub-Function: People Analytics","systems":"Integrations / MuleSoft, Data Platform / Snowflake","timeline":"Q1 - FY25 → Q3 - FY26","teamSize":"2 team(s): Integrations, Infra/Data"},"Exception Reports APAC and New Hire Reports EMEA​":{"stakeholders":"IT PM/Tech Lead: Vinotha Sudharsanam\nBusiness Owner: Ashley Falls\nSub-Function: Payroll","systems":"","timeline":"","teamSize":""},"Non-US Employee Benefit Administration (Project IBIS)":{"stakeholders":"IT PM/Tech Lead: Esther Kang, Malik Thomas\nHR Tech Partner: Neha Shreekar\nRequesting Function: GTO\nSub-Function: Benefits","systems":"Workday, Integrations / MuleSoft, App Systems Engineering","timeline":"Q2 - FY24 → FY27 (2023-11-22 – 2027-05-15)","teamSize":"3 team(s): Empl Exp & WD Func, Integrations, Apps Sys Eng"},"C0: Apply Connect":{"stakeholders":"IT PM/Tech Lead: Aaron Groth\nRequesting Function: TPE Internal\nSub-Function: GTO Supporting","systems":"SmartRecruiters (ATS), Integrations / MuleSoft, Initiative: Customer Zero","timeline":"Q1 - FY23 → Q3 - FY26 (2023-08-01 – 2026-03-18)","teamSize":"2 team(s): Recruit, Integrations"},"[ATS Project Rome]  - Phase 1":{"stakeholders":"IT PM/Tech Lead: Betty Yun, Karena Lee, Lyndon Leung\nHR Tech Partner: Abdullah Dosu\nRequesting Function: GTO\nSub-Function: TA","systems":"SmartRecruiters (ATS), Integrations / MuleSoft, Data Platform / Snowflake, Internal Engineering, Initiative: Project Rome/ATS","timeline":"Q2 - FY24 → Q1 - FY26 (2023-10-02 – 2026-09-22)","teamSize":"4 team(s): Recruit, Integrations, Infra/Data, SW Eng"},"Testing Transformation Powered by AI":{"stakeholders":"IT PM/Tech Lead: Rajendra Vemulapalli\nRequesting Function: TPE Internal\nSub-Function: GTO Supporting","systems":"SmartRecruiters (ATS), Workday, Workday, Workday Extend, Integrations / MuleSoft, Data Platform / Snowflake, Internal Engineering","timeline":"Q1 - FY25 → Q3 - FY26 (2024-07-08 – 2024-09-30)","teamSize":"7 team(s): Recruit, Empl Exp & WD Func, Emp Exp (Other), WD Extend, Integrations, Infra/Data, SW Eng"},"TDE - Committed Roadmap Items (e.g. WD Feedback integration)":{"stakeholders":"IT PM/Tech Lead: Ben Tsukamaki, Sarva Arjunwadkar, Sy Le\nBusiness Owner: Sarva Arjunwadkar\nSub-Function: PE/ Product","systems":"","timeline":"Q3 - FY24 → Q4 - FY24","teamSize":""},"Mexico Savings Scheme":{"stakeholders":"IT PM/Tech Lead: Andrew Malone\nHR Tech Partner: Neha Shreekar\nRequesting Function: GTO","systems":"","timeline":"Q2 - FY24 → Q4 - FY24","teamSize":""},"WpA (Workplace Analytics)":{"stakeholders":"IT PM/Tech Lead: Naga Lakshmi Sirugudi\nHR Tech Partner: Sheng Wu\nBusiness Owner: Brian Cheng\nSub-Function: People Analytics","systems":"Initiative: ROB - Rhythm of Business","timeline":"Multi-year → Q4 - FY24 (2022-03-01 – 2024-04-30)","teamSize":""},"Data Standardization [Guardian]":{"stakeholders":"IT PM/Tech Lead: Nagalakshmi Sirugudi\nHR Tech Partner: Sheng Wu\nBusiness Owner: Vianne Sha\nSub-Function: People Analytics","systems":"Initiative: ROB - Rhythm of Business","timeline":"Multi-year → Q4 - FY24 (2021-09-27 – 2024-06-28)","teamSize":""},"Legacy Integrations Phase 2":{"stakeholders":"IT PM/Tech Lead: Kiran KGW","systems":"Integrations / MuleSoft","timeline":"Q3 - FY25 → Q4 - FY24","teamSize":"1 team(s): Integrations"},"WFAC ROB Updates":{"stakeholders":"IT PM/Tech Lead: Darrin Dufort\nHR Tech Partner: Celia Hall\nRequesting Function: GTO","systems":"Initiative: ROB","timeline":"Q1 - FY24 → Q2 - FY24 (2023-09-01 – 2023-11-27)","teamSize":""},"Workday: Secure Credit Card Environment Upgrade / AMEX Integrations":{"stakeholders":"IT PM/Tech Lead: Abhinav Mittal\nHR Tech Partner: NA\nBusiness Owner: Bitchu Tharamal\n (no longer at LinkedIn)\nSub-Function: Workday","systems":"","timeline":"Q3 - FY22 → Q2 - FY24 (2023-02-28 – 2023-08-15)","teamSize":""},"DIBs Self ID: Phase 2 Employee (Workday)":{"stakeholders":"HR Tech Partner: Chris Martinez\nBusiness Owner: Thomas Sexton\nPriyanka Rowthu\nRequesting Function: GTO\nSub-Function: DIBs","systems":"Initiative: Engage","timeline":"Q3 - FY23 → Q4 - FY23","teamSize":""},"Go-Links Enhancements":{"stakeholders":"IT PM/Tech Lead: Lance Alfred\nBusiness Owner: Abhishek Singh\nSub-Function: PE / TPE","systems":"","timeline":"","teamSize":""},"TDE Enhancements for FY23 Annual Review & FY24 Midcycle":{"stakeholders":"IT PM/Tech Lead: Sarva Arjunwadkar\nBusiness Owner: Sarvadnya Arjunwadkar\nRequesting Function: GTO\nSub-Function: Talent Development","systems":"Initiative: ROB - Rhythm of Business","timeline":"Q4 - FY23 → Q4 - FY23 (2022-07-04 – 2023-06-30)","teamSize":""},"Workforce Planning - Position Management Phase 1":{"stakeholders":"IT PM/Tech Lead: Malik Thomas\nHR Tech Partner: Sheng Wu\nBusiness Owner: Brian Cheng\nRequesting Function: GTO\nSub-Function: People Analytics","systems":"Initiative: Foundational","timeline":"Multi-year → Q3 - FY23 (2022-02-15 – 2023-02-28)","teamSize":""},"Data support for Anaplan/Roster Mgmt Tool (FY24 Territory Planning)":{"stakeholders":"IT PM/Tech Lead: Sanjay Upadhyaya","systems":"","timeline":"","teamSize":""},"Tableau to Power BI Migration":{"stakeholders":"IT PM/Tech Lead: Pavan Sharma Kashibhatla\nHR Tech Partner: Sheng Wu\nBusiness Owner: Max Diaz\nRequesting Function: GTO\nSub-Function: People Analytics","systems":"Initiative: ROB - Rhythm of Business","timeline":"Q1 - FY23 → Q1 - FY23 (2022-07-01 – 2022-09-30)","teamSize":""},"Wage Transparency Automation":{"stakeholders":"IT PM/Tech Lead: Melissa Hyer Paris\nHR Tech Partner: Abdullah Dosu\nBusiness Owner: Sandra Ma\nRequesting Function: GTO\nSub-Function: TA","systems":"SmartRecruiters (ATS), Integrations / MuleSoft, Data Platform / Snowflake, Initiative: Project Rome/ATS","timeline":"","teamSize":"3 team(s): Recruit, Integrations, Infra/Data"},"Brazil Leave Balance - Phase 2 (WD Extend)":{"stakeholders":"","systems":"","timeline":"","teamSize":""},"Oribi: Phase 4.0 - ELT":{"stakeholders":"HR Tech Partner: Aaron Maxwell\nBusiness Owner: Shari Del Carlo\nRequesting Function: GTO\nSub-Function: HR M&A","systems":"Initiative: Confidential (M&A, etc.)","timeline":"","teamSize":""},"Oribi: Phase 4.0 - Benefits Portal":{"stakeholders":"HR Tech Partner: Aaron Maxwell\nBusiness Owner: Shari Del Carlo\nRequesting Function: GTO\nSub-Function: HR M&A","systems":"Initiative: Confidential (M&A, etc.)","timeline":"","teamSize":""},"Bumblebee (Global Payroll) Wave 1: France Fast Follow Optimizations":{"stakeholders":"IT PM/Tech Lead: Tarun Shukla\nHR Tech Partner: Sandhya Srinivasa\nRequesting Function: GTO, Finance\nSub-Function: Payroll","systems":"Workday, Integrations / MuleSoft, Internal Engineering","timeline":"","teamSize":"3 team(s): Empl Exp & WD Func, Integrations, SW Eng"},"CSOD to GroupID integration":{"stakeholders":"IT PM/Tech Lead: May Cheung\nRequesting Function: GTO\nSub-Function: People Analytics","systems":"Workday, Integrations / MuleSoft, Data Platform / Snowflake","timeline":"","teamSize":"3 team(s): Empl Exp & WD Func, Integrations, Infra/Data"},"Belgium New Entity Phase 1":{"stakeholders":"Requesting Function: GTO\nSub-Function: Cross Functional","systems":"","timeline":"","teamSize":""},"Workforce Planning and Forecasting Tool (Discovery)":{"stakeholders":"HR Tech Partner: Aaron Maxwell\nRequesting Function: GTO\nSub-Function: People Analytics","systems":"Data Platform / Snowflake, Internal Engineering","timeline":"","teamSize":"2 team(s): Infra/Data, SW Eng"},"EU Directive on Pay Transparency (Discovery)":{"stakeholders":"HR Tech Partner: Diana Carabetta","systems":"Integrations / MuleSoft","timeline":"","teamSize":"1 team(s): Integrations"},"EU Directive on Pay Transparency (Project Quan)":{"stakeholders":"IT PM/Tech Lead: May Cheung\nHR Tech Partner: Diana Carabetta\nRequesting Function: GTO\nSub-Function: Compensation","systems":"Workday, Integrations / MuleSoft, Data Platform / Snowflake","timeline":"Q1 - FY26 → Q4 - FY26 (2025-09-01 – 2026-06-07)","teamSize":"3 team(s): Empl Exp & WD Func, Integrations, Infra/Data"},"Recruiting Portal ROB &  Enhancements":{"stakeholders":"IT PM/Tech Lead: Melissa Paris\nHR Tech Partner: Abdullah Dosu\nRequesting Function: GTO\nSub-Function: TA","systems":"SmartRecruiters (ATS), Integrations / MuleSoft, Data Platform / Snowflake, App Systems Engineering, Initiative: Project Rome/ATS","timeline":"Q3 - FY26 → Q4 - FY26","teamSize":"4 team(s): Recruit, Integrations, Infra/Data, Apps Sys Eng"},"Project Relic - Document Management Discovery":{"stakeholders":"IT PM/Tech Lead: Ejiro Ojigbo\nHR Tech Partner: Paige Barrameda\nRequesting Function: GTO\nSub-Function: Talent Services, Operations & Programs","systems":"SmartRecruiters (ATS), Workday, Integrations / MuleSoft, Data Platform / Snowflake","timeline":"Q3 - FY26 → Q4 - FY26","teamSize":"4 team(s): Recruit, Empl Exp & WD Func, Integrations, Infra/Data"},"SNOW HRSD DWH Integration":{"stakeholders":"IT PM/Tech Lead: Parveen Malik\nHR Tech Partner: Paige Barrameda\nRequesting Function: GTO\nSub-Function: Talent Services, Operations & Programs","systems":"Integrations / MuleSoft, Data Platform / Snowflake, App Systems Engineering, TPE + SNOW","timeline":"Q1 - FY26 → Q2 - FY26","teamSize":"3 team(s): Integrations, Infra/Data, Apps Sys Eng"},"Workday for Succession Planning - Discovery":{"stakeholders":"IT PM/Tech Lead: Andrew Malone\nHR Tech Partner: Lauren Masluk\nRequesting Function: GTO\nSub-Function: Talent Development","systems":"Workday","timeline":"Q2 - FY26 → Q2 - FY26","teamSize":"1 team(s): Empl Exp & WD Func"},"FY26 SmartRecruiters Enhancements":{"stakeholders":"IT PM/Tech Lead: Melissa Paris\nHR Tech Partner: Abdullah Dosu\nRequesting Function: GTO\nSub-Function: TA","systems":"SmartRecruiters (ATS), Initiative: Project Rome/ATS","timeline":"Q3 - FY26 → Q4 - FY26","teamSize":"1 team(s): Recruit"},"Project Skyline - Workforce Talent Planner Tool":{"stakeholders":"IT PM/Tech Lead: Pradhap Ganesan\nHR Tech Partner: Sheng Wu\nRequesting Function: Finance\nSub-Function: People Analytics","systems":"Workday, Data Platform / Snowflake, Internal Engineering, App Systems Engineering","timeline":"Q1 - FY26 → Q4 - FY26","teamSize":"4 team(s): Empl Exp & WD Func, Infra/Data, SW Eng, Apps Sys Eng"},"CSOD Support & Enhancements":{"stakeholders":"IT PM/Tech Lead: May Cheung\nHR Tech Partner: Abdullah Dosu\nRequesting Function: GTO\nSub-Function: Talent Development","systems":"Workday","timeline":"Q1 - FY26 → Q4 - FY26","teamSize":"1 team(s): Empl Exp & WD Func"},"Location Accuracy and Movement":{"stakeholders":"IT PM/Tech Lead: Atiyeh Keshavarz\nHR Tech Partner: Paige Barrameda\nRequesting Function: GTO\nSub-Function: Flex Work","systems":"SmartRecruiters (ATS), Workday, Integrations / MuleSoft, Data Platform / Snowflake, Need to Validate if SNOW needed","timeline":"Q3 - FY26 → Q4 - FY26 (2026-01-12 – 2026-06-30)","teamSize":"4 team(s): Recruit, Empl Exp & WD Func, Integrations, Infra/Data"},"Update NHI (Malaysia, Japan, Mexico)":{"stakeholders":"IT PM/Tech Lead: Rajarethenam Velayutham\nHR Tech Partner: Haritha Lokineni\nRequesting Function: GTO\nSub-Function: Talent Services, Operations & Programs","systems":"SmartRecruiters (ATS), Workday Extend, Integrations / MuleSoft","timeline":"Q3 - FY26 → Q3 - FY26","teamSize":"3 team(s): Recruit, WD Extend, Integrations"},"Metadata/Semantic Layer":{"stakeholders":"IT PM/Tech Lead: Pavan Sharma Kashibhatla\nHR Tech Partner: Aaron Maxwell\nRequesting Function: GTO\nSub-Function: People Analytics","systems":"Data Platform / Snowflake","timeline":"Q3 - FY26 → Q4 - FY26","teamSize":"1 team(s): Infra/Data"},"Skills Data Foundation: WD to SR Integrations":{"stakeholders":"IT PM/Tech Lead: Kiran KGW\nHR Tech Partner: Emily Andrulis\nRequesting Function: GTO\nSub-Function: Talent Development","systems":"Workday","timeline":"Q2 - FY26 → Q4 - FY26","teamSize":"1 team(s): Empl Exp & WD Func"},"ScreenIn":{"stakeholders":"IT PM/Tech Lead: Cristina Leonard\nHR Tech Partner: Abdullah Dosu\nRequesting Function: GTO\nSub-Function: TA","systems":"SmartRecruiters (ATS)","timeline":"Q3 - FY26 → Q4 - FY26","teamSize":"1 team(s): Recruit"},"TAM Expansion ARM (Designation)":{"stakeholders":"IT PM/Tech Lead: Melissa Paris\nHR Tech Partner: Abdullah Dosu\nRequesting Function: GTO\nSub-Function: TA","systems":"SmartRecruiters (ATS)","timeline":"","teamSize":"1 team(s): Recruit"},"Australia Long Service Leave (Phase 2) -Assessment Only":{"stakeholders":"IT PM/Tech Lead: Sandeep C\nHR Tech Partner: Neha Shreekar\nRequesting Function: GTO\nSub-Function: Benefits","systems":"Workday","timeline":"","teamSize":"1 team(s): Empl Exp & WD Func"},"C0: LiHA Applicant Evaluation Charter":{"stakeholders":"IT PM/Tech Lead: Melissa Paris\nHR Tech Partner: Abdullah Dosu\nRequesting Function: GTO\nSub-Function: TA","systems":"SmartRecruiters (ATS), Integrations / MuleSoft, Initiative: Customer Zero","timeline":"Q1 - FY26 → Q4 - FY26","teamSize":"2 team(s): Recruit, Integrations"},"Workday Release 2026R1":{"stakeholders":"IT PM/Tech Lead: Atiyeh Keshavarz\nHR Tech Partner: Aaron Maxwell\nRequesting Function: GTO","systems":"Workday, Workday Extend, Integrations / MuleSoft, Initiative: ROB","timeline":"Q3 - FY26 → Q3 - FY26 (2026-01-26 – 2026-03-27)","teamSize":"3 team(s): Empl Exp & WD Func, WD Extend, Integrations"},"Annual Review Cycle FY2026":{"stakeholders":"IT PM/Tech Lead: May Cheung\nHR Tech Partner: No HR Tech Partner\nRequesting Function: GTO","systems":"Workday, Data Platform / Snowflake, Initiative: ROB","timeline":"Q4 - FY25 → Q4 - FY26","teamSize":"2 team(s): Empl Exp & WD Func, Infra/Data"},"GitHub Migration":{"stakeholders":"IT PM/Tech Lead: Pradhap Ganesan\nRequesting Function: TPE Internal\nSub-Function: PE / TPE","systems":"SmartRecruiters (ATS)","timeline":"Q1 - FY26 → Q3 - FY26","teamSize":"1 team(s): Recruit"},"Prototyping for Privacy Review Process":{"stakeholders":"IT PM/Tech Lead: Pavan Sharma Kashibhatla\nRequesting Function: TPE Internal","systems":"","timeline":"Q1 - FY26 → Q3 - FY26","teamSize":""},"Payroll: Detailed Tax Report for Irish Tax Authority":{"stakeholders":"IT PM/Tech Lead: Megha Srivastava\nRequesting Function: Finance","systems":"","timeline":"Q1 - FY26 → Q2 - FY26","teamSize":""},"HackerRank/CoderPad FY26 ROB":{"stakeholders":"IT PM/Tech Lead: Cristina Leonard\nRequesting Function: TPE Internal","systems":"SmartRecruiters (ATS), Initiative: ROB","timeline":"Q1 - FY26 → Q4 - FY26","teamSize":"1 team(s): Recruit"},"Interview Intelligence Pilot for Non-Eng":{"stakeholders":"IT PM/Tech Lead: Melissa Paris\nRequesting Function: TPE Internal","systems":"SmartRecruiters (ATS)","timeline":"Q1 - FY26 → Q3 - FY26 (2025-07-21 – 2026-03-31)","teamSize":"1 team(s): Recruit"},"SR ROB/Releases":{"stakeholders":"IT PM/Tech Lead: Melissa Paris\nRequesting Function: TPE Internal","systems":"SmartRecruiters (ATS), Initiative: ROB","timeline":"Q1 - FY26 → Q4 - FY26","teamSize":"1 team(s): Recruit"},"Global Sales: Credit Foundations - LOA":{"stakeholders":"IT PM/Tech Lead: Kiran KGW\nRequesting Function: GTM","systems":"","timeline":"Q1 - FY26 → Q2 - FY26 (2025-08-01 – 2025-12-31)","teamSize":""},"Migration of Mariner2 to Azure Linux 3":{"stakeholders":"IT PM/Tech Lead: Pradhap Ganesan\nRequesting Function: R&D","systems":"","timeline":"Q1 - FY26 → Q2 - FY26","teamSize":""},"Workday File Refresh Automation":{"stakeholders":"IT PM/Tech Lead: Ankit Rajshree\nRequesting Function: GTO\nSub-Function: People Analytics","systems":"","timeline":"Q1 - FY26 → Q2 - FY26","teamSize":""},"Agentic Platform Discovery & Enablement":{"stakeholders":"IT PM/Tech Lead: Vianne Sha","systems":"","timeline":"Q1 - FY26 → Q4 - FY26","teamSize":""},"Copilot Studio: Discovery & Enablement":{"stakeholders":"IT PM/Tech Lead: Rajendra Vemulapalli","systems":"","timeline":"Q1 - FY26 → Q4 - FY26","teamSize":""},"TPE System Metrics":{"stakeholders":"IT PM/Tech Lead: Naga Lakshmi Sirugudi","systems":"","timeline":"Q1 - FY26 → Q3 - FY26 (2025-05-01 – 2026-03-30)","teamSize":""},"Project Harbor (Stretch Goal)":{"stakeholders":"IT PM/Tech Lead: Ankit Rajshree","systems":"","timeline":"Q1 - FY26 → Q2 - FY26","teamSize":""},"TDE Tools: CORP to PROD Migration":{"stakeholders":"IT PM/Tech Lead: Sy Le","systems":"","timeline":"","teamSize":""},"Project Aeron (Position Mgmt)":{"stakeholders":"IT PM/Tech Lead: Rajendra Vemulapalli\nHR Tech Partner: Aaron Maxwell\nRequesting Function: Finance","systems":"","timeline":"","teamSize":""},"AI-Curated Review in TDE":{"stakeholders":"IT PM/Tech Lead: Sy Le\nRequesting Function: R&D","systems":"","timeline":"","teamSize":""},"PA Data Foundations (incl Workforce Analytics Metadata)":{"stakeholders":"IT PM/Tech Lead: Rajendra Vemulapalli","systems":"","timeline":"Q2 - FY26 → Q4 - FY26","teamSize":""},"Databridge - Payroll Recon Tool":{"stakeholders":"IT PM/Tech Lead: Sanjay Upadhyaya","systems":"","timeline":"Q3 - FY26 → Q4 - FY26","teamSize":""},"Project Firebird (Alteryx)":{"stakeholders":"IT PM/Tech Lead: Manik Pandita\nHR Tech Partner: Barbara Porter","systems":"","timeline":"Q2 - FY26 → Q2 - FY26","teamSize":""},"Receipt OCR & Email Ingestion":{"stakeholders":"IT PM/Tech Lead: Atiyeh Keshavarz","systems":"Workday","timeline":"(2025-12-09 – 2026-01-30)","teamSize":"1 team(s): Empl Exp & WD Func"},"Skills Data Foundation: TArc Enhancements (WD Extend)":{"stakeholders":"IT PM/Tech Lead: Mahendra Giri Goswami\nRequesting Function: GTO","systems":"Workday, Workday Extend, Integrations / MuleSoft","timeline":"","teamSize":"3 team(s): Empl Exp & WD Func, WD Extend, Integrations"},"AI Inferred Skills: TechWolf - Implementation":{"stakeholders":"IT PM/Tech Lead: Ejiro Ojigbo","systems":"","timeline":"","teamSize":""},"Project Aura - RP Integration for RC Tasks":{"stakeholders":"IT PM/Tech Lead: Karena Lee","systems":"SmartRecruiters (ATS)","timeline":"Q2 - FY26 → Q3 - FY26","teamSize":"1 team(s): Recruit"},"MFT Migration":{"stakeholders":"IT PM/Tech Lead: Rajendra Vemulapalli","systems":"Data Platform / Snowflake","timeline":"","teamSize":"1 team(s): Infra/Data"},"C0: Fix WD & LiL Integration":{"stakeholders":"IT PM/Tech Lead: Srikanth Gadde","systems":"Integrations / MuleSoft","timeline":"","teamSize":"1 team(s): Integrations"},"EI Dashboard Live - Improve Refresh Cadence":{"stakeholders":"IT PM/Tech Lead: Surya Pydimukkala","systems":"Integrations / MuleSoft","timeline":"","teamSize":"1 team(s): Integrations"},"EVS Table -  Data Update":{"stakeholders":"IT PM/Tech Lead: Naga Lakshmi Sirugudi","systems":"","timeline":"(2025-12-01 – 2026-02-28)","teamSize":""},"Security Log Ingestion - Workday":{"stakeholders":"IT PM/Tech Lead: Sanjay Upadhyaya","systems":"","timeline":"","teamSize":""},"Interview Intelligence for Non-Eng (Expansion)":{"stakeholders":"IT PM/Tech Lead: Cristina Leonard","systems":"SmartRecruiters (ATS)","timeline":"Q1 - FY26 → Q4 - FY26","teamSize":"1 team(s): Recruit"},"AI Inferred Skills: MSFT People Skills - Implementation":{"stakeholders":"IT PM/Tech Lead: Naresh Ginjupalli","systems":"","timeline":"","teamSize":""},"Candidate Fraud - Discovery":{"stakeholders":"IT PM/Tech Lead: Lyndon Leung","systems":"SmartRecruiters (ATS)","timeline":"Q3 - FY26 → Q3 - FY26","teamSize":"1 team(s): Recruit"},"Candidate Fraud: Identity & Credential Verification - Discovery":{"stakeholders":"IT PM/Tech Lead: Lyndon Leung","systems":"SmartRecruiters (ATS)","timeline":"Q3 - FY26 → Q3 - FY26","teamSize":"1 team(s): Recruit"},"Candidate Fraud: Anti-Cheat Interview Intelligence - CoderPad Discovery":{"stakeholders":"IT PM/Tech Lead: Cristina Leonard","systems":"SmartRecruiters (ATS)","timeline":"","teamSize":"1 team(s): Recruit"},"Candidate Fraud: Anti-Cheat Interview Intelligence - BrightHire Discovery":{"stakeholders":"IT PM/Tech Lead: Melissa Paris","systems":"SmartRecruiters (ATS)","timeline":"","teamSize":"1 team(s): Recruit"},"Candidate Fraud: Anti-Cheat Interview Intelligence - Build & Launch":{"stakeholders":"IT PM/Tech Lead: Lyndon Leung","systems":"SmartRecruiters (ATS)","timeline":"","teamSize":"1 team(s): Recruit"},"SR SmartCRM (Non-ET) - Pilot":{"stakeholders":"IT PM/Tech Lead: Cristina Leonard\nHR Tech Partner: Abdullah Dosu","systems":"SmartRecruiters (ATS)","timeline":"Q3 - FY26 → Q4 - FY26","teamSize":"1 team(s): Recruit"},"Letter Tool & OLT Decommission APAC":{"stakeholders":"IT PM/Tech Lead: Aaron Groth\nRequesting Function: TE - HR Ops​","systems":"SmartRecruiters (ATS)","timeline":"Q3 - FY26 → Q4 - FY26","teamSize":"1 team(s): Recruit"},"Letter Tool & OLT Decommission EMEAL":{"stakeholders":"IT PM/Tech Lead: Aaron Groth\nRequesting Function: TE - HR Ops​","systems":"SmartRecruiters (ATS)","timeline":"","teamSize":"1 team(s): Recruit"},"Interview Intelligence for Eng":{"stakeholders":"IT PM/Tech Lead: Lyndon Leung","systems":"SmartRecruiters (ATS)","timeline":"Q3 - FY26 → Q4 - FY26","teamSize":"1 team(s): Recruit"},"C0: LI Career Hub Charter  (LiL/WD Integration) OrgSync":{"stakeholders":"IT PM/Tech Lead: Srikanth Gadde","systems":"SmartRecruiters (ATS)","timeline":"","teamSize":"1 team(s): Recruit"},"Candidate Fraud: Identity & Credential Verification - Build & Launch":{"stakeholders":"IT PM/Tech Lead: Lyndon Leung","systems":"SmartRecruiters (ATS)","timeline":"","teamSize":"1 team(s): Recruit"},"CA Emergency Contact Update​":{"stakeholders":"IT PM/Tech Lead: Ejiro Ojigbo\nHR Tech Partner: Celia Hall","systems":"","timeline":"","teamSize":""},"NY Sick Leave Expansion":{"stakeholders":"IT PM/Tech Lead: Andrew Malone\nHR Tech Partner: Celia Hall","systems":"","timeline":"","teamSize":""}};
+
+document.getElementById('projectName').addEventListener('change', function() {
+  const desc = TPE_PROJECT_DESCRIPTIONS[this.value] || '';
+  const s = TPE_SUGGESTIONS[this.value] || {};
+  document.getElementById('objective').value = desc;
+  document.getElementById('stakeholders').value = s.stakeholders || '';
+  document.getElementById('systems').value = s.systems || '';
+  document.getElementById('timeline').value = s.timeline || '';
+  document.getElementById('teamSize').value = s.teamSize || '';
+});
+</script>
+</body>
+</html>

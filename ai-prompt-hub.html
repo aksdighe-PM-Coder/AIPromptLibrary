@@ -1,0 +1,2310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Prompt Hub – Enterprise Prompt Library</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --sp-blue: #0078d4;
+  --sp-blue-dark: #005a9e;
+  --sp-blue-light: #deecf9;
+  --sp-blue-xlight: #f0f6fc;
+  --sp-purple: #8764b8;
+  --sp-purple-light: #f2eef9;
+  --sp-green: #107c10;
+  --sp-green-light: #dff6dd;
+  --sp-orange: #d83b01;
+  --sp-orange-light: #fde7d9;
+  --sp-teal: #038387;
+  --sp-teal-light: #d7f3f4;
+  --sp-yellow: #ffb900;
+  --sp-yellow-light: #fff4ce;
+  --sp-red: #c50f1f;
+  --sp-red-light: #fde7e9;
+  --bg: #f3f2f1;
+  --surface: #ffffff;
+  --border: #edebe9;
+  --border-dark: #c8c6c4;
+  --text: #201f1e;
+  --text-secondary: #605e5c;
+  --text-muted: #a19f9d;
+  --shadow-sm: 0 1.6px 3.6px rgba(0,0,0,.132), 0 0.3px 0.9px rgba(0,0,0,.108);
+  --shadow-md: 0 6.4px 14.4px rgba(0,0,0,.132), 0 1.2px 3.6px rgba(0,0,0,.108);
+  --shadow-lg: 0 25.6px 57.6px rgba(0,0,0,.22), 0 4.8px 14.4px rgba(0,0,0,.18);
+  --radius: 4px;
+  --radius-lg: 8px;
+  --font: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --nav-h: 48px;
+  --suite-h: 48px;
+  --sidebar-w: 260px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── MS 365 Suite Bar ─── */
+.suite-bar {
+  height: var(--suite-h);
+  background: #2b2b2b;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+}
+.suite-bar .waffle {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 2px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 18px;
+}
+.suite-bar .waffle:hover { background: rgba(255,255,255,0.1); }
+.suite-bar .suite-logo {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+.suite-bar .suite-logo span { color: #0078d4; }
+.suite-bar-right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 8px;
+}
+.suite-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0078d4, #8764b8);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 12px; font-weight: 700;
+  cursor: pointer;
+}
+.suite-icon-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 2px; cursor: pointer; color: #ccc; font-size: 16px;
+}
+.suite-icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* ─── SharePoint Nav Bar ─── */
+.sp-navbar {
+  height: var(--nav-h);
+  background: var(--sp-blue);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 0;
+  position: fixed;
+  top: var(--suite-h);
+  left: 0; right: 0;
+  z-index: 999;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.nav-site-name {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  padding: 0 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-site-name .site-icon {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.nav-links {
+  display: flex; align-items: center; height: 100%;
+  margin-left: 8px;
+}
+.nav-link {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  padding: 0 14px;
+  height: 100%;
+  display: flex; align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.nav-link.active { color: #fff; border-bottom-color: #fff; }
+.nav-search {
+  margin-left: auto;
+  display: flex; align-items: center;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 2px;
+  padding: 4px 10px;
+  gap: 6px;
+  width: 240px;
+  transition: all 0.15s;
+}
+.nav-search:focus-within {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.6);
+}
+.nav-search input {
+  background: none; border: none; outline: none;
+  color: #fff; font-size: 13px; width: 100%;
+}
+.nav-search input::placeholder { color: rgba(255,255,255,0.65); }
+.nav-search .search-icon { color: rgba(255,255,255,0.7); font-size: 14px; }
+.nav-right { display: flex; align-items: center; gap: 4px; margin-left: 12px; }
+.nav-icon-btn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 2px; cursor: pointer; color: rgba(255,255,255,0.8);
+  font-size: 16px; transition: all 0.15s;
+}
+.nav-icon-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+/* ─── Layout ─── */
+.page-wrapper {
+  padding-top: calc(var(--suite-h) + var(--nav-h));
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── Sidebar ─── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: calc(var(--suite-h) + var(--nav-h));
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+.sidebar-section { padding: 16px 0 8px; }
+.sidebar-section + .sidebar-section { border-top: 1px solid var(--border); }
+.sidebar-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  padding: 0 16px;
+  margin-bottom: 4px;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.1s;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+}
+.sidebar-item:hover {
+  background: var(--sp-blue-xlight);
+  color: var(--sp-blue);
+}
+.sidebar-item.active {
+  background: var(--sp-blue-light);
+  color: var(--sp-blue-dark);
+  font-weight: 600;
+  border-left-color: var(--sp-blue);
+}
+.sidebar-item .item-icon { font-size: 15px; width: 20px; text-align: center; }
+.sidebar-item .item-count {
+  margin-left: auto;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+.sidebar-item.active .item-count {
+  background: var(--sp-blue);
+  color: #fff;
+}
+
+/* ─── Main Content ─── */
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-width: 0;
+}
+
+/* ─── Hero Banner ─── */
+.hero {
+  background: linear-gradient(135deg, #0078d4 0%, #2b4a9f 50%, #8764b8 100%);
+  padding: 48px 40px 56px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-content { position: relative; max-width: 680px; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.9);
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 4px 12px; border-radius: 20px;
+  margin-bottom: 16px;
+}
+.hero h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+}
+.hero p {
+  font-size: 15px;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 28px;
+  max-width: 520px;
+  line-height: 1.6;
+}
+.hero-search {
+  display: flex;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  max-width: 560px;
+  margin-bottom: 24px;
+}
+.hero-search input {
+  flex: 1; border: none; outline: none;
+  padding: 14px 16px;
+  font-size: 14px; color: var(--text);
+  font-family: var(--font);
+}
+.hero-search input::placeholder { color: var(--text-muted); }
+.hero-search-btn {
+  background: var(--sp-blue);
+  color: #fff; border: none;
+  padding: 14px 24px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: var(--font);
+  transition: background 0.15s;
+}
+.hero-search-btn:hover { background: var(--sp-blue-dark); }
+.hero-stats {
+  display: flex; gap: 24px;
+}
+.hero-stat {
+  color: rgba(255,255,255,0.9);
+  font-size: 13px;
+}
+.hero-stat strong { font-size: 20px; font-weight: 700; display: block; color: #fff; }
+
+/* ─── Content Area ─── */
+.content-area { padding: 28px 32px; max-width: 1200px; }
+
+/* ─── Section Headers ─── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: 18px; font-weight: 700; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title .title-icon { font-size: 20px; }
+.section-link {
+  color: var(--sp-blue); font-size: 13px; font-weight: 500;
+  text-decoration: none; cursor: pointer;
+}
+.section-link:hover { text-decoration: underline; }
+
+/* ─── Filter Bar ─── */
+.filter-bar {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.filter-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-right: 4px; }
+.filter-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-dark);
+  background: var(--surface);
+  font-size: 12px; font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-chip:hover { border-color: var(--sp-blue); color: var(--sp-blue); }
+.filter-chip.active {
+  background: var(--sp-blue);
+  border-color: var(--sp-blue);
+  color: #fff;
+}
+.filter-select {
+  padding: 5px 28px 5px 10px;
+  border: 1px solid var(--border-dark);
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 12px; font-weight: 500;
+  color: var(--text);
+  cursor: pointer; outline: none;
+  font-family: var(--font);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23605e5c' d='M1.41 0L6 4.58 10.59 0 12 1.41 6 7.41 0 1.41z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+.filter-select:focus { border-color: var(--sp-blue); }
+
+/* ─── Prompt Grid ─── */
+.prompt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+/* ─── Prompt Card ─── */
+.prompt-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.prompt-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.prompt-card[data-team="HR"]::before { background: var(--sp-teal); }
+.prompt-card[data-team="Engineering"]::before { background: var(--sp-blue); }
+.prompt-card[data-team="Product"]::before { background: var(--sp-purple); }
+.prompt-card[data-team="Sales"]::before { background: var(--sp-orange); }
+.prompt-card[data-team="Marketing"]::before { background: var(--sp-yellow); }
+.prompt-card[data-team="Operations"]::before { background: var(--sp-green); }
+.prompt-card[data-team="Leadership"]::before { background: var(--sp-red); }
+.prompt-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-dark);
+  transform: translateY(-2px);
+}
+.card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.card-team-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.badge-HR { background: var(--sp-teal-light); color: var(--sp-teal); }
+.badge-Engineering { background: var(--sp-blue-light); color: var(--sp-blue-dark); }
+.badge-Product { background: var(--sp-purple-light); color: var(--sp-purple); }
+.badge-Sales { background: var(--sp-orange-light); color: var(--sp-orange); }
+.badge-Marketing { background: var(--sp-yellow-light); color: #7a5800; }
+.badge-Operations { background: var(--sp-green-light); color: var(--sp-green); }
+.badge-Leadership { background: var(--sp-red-light); color: var(--sp-red); }
+.badge-Bots { background: #f2e8ff; color: #6b21a8; }
+.badge-Bots---Agents { background: #f2e8ff; color: #6b21a8; }
+.card-complexity {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+.complexity-Beginner { background: var(--sp-green-light); color: var(--sp-green); }
+.complexity-Intermediate { background: var(--sp-yellow-light); color: #7a5800; }
+.complexity-Advanced { background: var(--sp-red-light); color: var(--sp-red); }
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.card-use-case {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-prompt-preview {
+  background: #f8f8f6;
+  border-left: 3px solid var(--border-dark);
+  padding: 10px 12px;
+  border-radius: 0 4px 4px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: 'SF Mono', 'Consolas', monospace;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.6;
+}
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.card-tag {
+  font-size: 11px;
+  background: var(--bg);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+.card-footer {
+  display: flex; align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+  gap: 12px;
+}
+.card-meta { font-size: 11px; color: var(--text-muted); }
+.card-actions { margin-left: auto; display: flex; gap: 4px; }
+.card-action-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 11px; font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.card-action-btn:hover { background: var(--bg); border-color: var(--border-dark); }
+.card-action-btn.liked { background: var(--sp-red-light); border-color: var(--sp-red); color: var(--sp-red); }
+.trending-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: var(--sp-orange);
+  color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* ─── Featured Row ─── */
+.featured-card {
+  background: linear-gradient(135deg, #0078d4 0%, #2b4a9f 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  color: #fff;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 32px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.featured-card:hover { box-shadow: var(--shadow-md); }
+.featured-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: rgba(255,255,255,0.7);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.featured-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.featured-desc { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+.featured-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 16px;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 4px;
+  font-size: 13px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.featured-cta:hover { background: rgba(255,255,255,0.3); }
+.featured-icon { font-size: 72px; opacity: 0.2; }
+
+/* ─── Category Cards ─── */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.category-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.category-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-dark);
+  transform: translateY(-2px);
+}
+.category-card.active {
+  border-color: var(--sp-blue);
+  background: var(--sp-blue-xlight);
+}
+.cat-icon { font-size: 28px; margin-bottom: 8px; }
+.cat-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.cat-count { font-size: 12px; color: var(--text-muted); }
+
+/* ─── Submit Prompt CTA ─── */
+.submit-cta {
+  background: var(--surface);
+  border: 2px dashed var(--border-dark);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 32px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.submit-cta:hover { border-color: var(--sp-blue); background: var(--sp-blue-xlight); }
+.submit-cta-icon { font-size: 36px; margin-bottom: 8px; }
+.submit-cta h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.submit-cta p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--sp-blue);
+  color: #fff; border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: var(--font);
+  transition: background 0.15s;
+}
+.btn-primary:hover { background: var(--sp-blue-dark); }
+.btn-secondary {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface);
+  color: var(--sp-blue);
+  border: 1px solid var(--sp-blue);
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: var(--font);
+  transition: all 0.15s;
+}
+.btn-secondary:hover { background: var(--sp-blue-xlight); }
+
+/* ─── Governance Section ─── */
+.governance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.governance-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.gov-icon { font-size: 28px; margin-bottom: 12px; }
+.gov-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.gov-role { font-size: 12px; font-weight: 600; color: var(--sp-blue); margin-bottom: 8px; }
+.gov-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+.gov-perms { display: flex; flex-direction: column; gap: 4px; }
+.gov-perm {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text-secondary);
+}
+.gov-perm::before { content: '✓'; color: var(--sp-green); font-weight: 700; font-size: 11px; }
+
+/* ─── Best Practices ─── */
+.practices-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.practice-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.practice-card.dos { border-top: 3px solid var(--sp-green); }
+.practice-card.donts { border-top: 3px solid var(--sp-red); }
+.practice-title {
+  font-size: 14px; font-weight: 700; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.practice-list { display: flex; flex-direction: column; gap: 8px; }
+.practice-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 13px; color: var(--text-secondary);
+}
+.practice-item.do::before { content: '✅'; font-size: 12px; margin-top: 1px; }
+.practice-item.dont::before { content: '❌'; font-size: 12px; margin-top: 1px; }
+
+/* ─── Analytics Row ─── */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.analytics-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.analytics-value { font-size: 28px; font-weight: 700; color: var(--sp-blue); margin-bottom: 4px; }
+.analytics-label { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 12px; }
+.analytics-bar { height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+.analytics-fill { height: 100%; border-radius: 2px; background: var(--sp-blue); transition: width 0.6s; }
+
+/* ─── Modal ─── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  display: flex; align-items: flex-start; justify-content: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-panel {
+  background: var(--surface);
+  width: min(640px, 100vw);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 0;
+  transform: translateX(100%);
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: var(--shadow-lg);
+  display: flex; flex-direction: column;
+}
+.modal-overlay.open .modal-panel { transform: translateX(0); }
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 12px;
+  position: sticky; top: 0;
+  background: var(--surface); z-index: 10;
+}
+.modal-close {
+  margin-left: auto; cursor: pointer;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; font-size: 18px; color: var(--text-muted);
+  border: none; background: none; flex-shrink: 0;
+}
+.modal-close:hover { background: var(--bg); color: var(--text); }
+.modal-body { padding: 24px; flex: 1; }
+.modal-section { margin-bottom: 24px; }
+.modal-section-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;
+}
+.modal-section-content {
+  font-size: 14px; color: var(--text); line-height: 1.6;
+}
+.prompt-box {
+  background: #1e1e1e;
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  font-family: 'SF Mono', 'Consolas', monospace;
+  font-size: 13px;
+  color: #d4d4d4;
+  line-height: 1.7;
+  position: relative;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.prompt-highlight { color: #9cdcfe; }
+.copy-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+  font-size: 12px; padding: 4px 10px;
+  border-radius: 3px; cursor: pointer;
+  font-family: var(--font); transition: all 0.15s;
+}
+.copy-btn:hover { background: rgba(255,255,255,0.2); }
+.copy-btn.copied { background: var(--sp-green-light); border-color: var(--sp-green); color: var(--sp-green); }
+.example-output {
+  background: var(--sp-green-light);
+  border: 1px solid rgba(16,124,16,0.2);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 13px; color: var(--text);
+  line-height: 1.6;
+}
+.inputs-list { display: flex; flex-direction: column; gap: 8px; }
+.input-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text-secondary);
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.input-item::before { content: '📥'; font-size: 12px; }
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 10px;
+  position: sticky; bottom: 0;
+  background: var(--surface);
+}
+.version-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--bg); border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 3px;
+  font-size: 11px; color: var(--text-muted);
+  font-family: monospace;
+}
+
+/* ─── Submit Modal ─── */
+.submit-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 3000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.submit-modal-overlay.open { opacity: 1; pointer-events: all; }
+.submit-modal {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: min(600px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.95) translateY(16px);
+  transition: transform 0.2s;
+}
+.submit-modal-overlay.open .submit-modal { transform: scale(1) translateY(0); }
+.submit-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, #0078d4, #2b4a9f);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.submit-modal-title { font-size: 18px; font-weight: 700; color: #fff; }
+.submit-modal-body { padding: 24px; }
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display: block; font-size: 13px; font-weight: 600;
+  color: var(--text); margin-bottom: 6px;
+}
+.form-label .required { color: var(--sp-red); margin-left: 2px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; border: 1px solid var(--border-dark);
+  border-radius: var(--radius); padding: 9px 12px;
+  font-size: 14px; font-family: var(--font);
+  color: var(--text); outline: none;
+  transition: border-color 0.15s;
+  background: var(--surface);
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--sp-blue);
+  box-shadow: 0 0 0 2px rgba(0,120,212,0.12);
+}
+.form-textarea { min-height: 100px; resize: vertical; line-height: 1.5; }
+.form-textarea.prompt-input {
+  font-family: 'SF Mono', 'Consolas', monospace;
+  min-height: 120px;
+  background: #1e1e1e; color: #d4d4d4;
+  border-color: #444;
+}
+.form-textarea.prompt-input:focus { border-color: var(--sp-blue); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.submit-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+/* ─── Notification Toast ─── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--sp-green);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-lg);
+  font-size: 14px; font-weight: 500;
+  box-shadow: var(--shadow-md);
+  z-index: 9999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  display: flex; align-items: center; gap: 8px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ─── Utility ─── */
+.hidden { display: none !important; }
+.divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main-content { margin-left: 0; }
+  .governance-grid { grid-template-columns: 1fr; }
+  .analytics-grid { grid-template-columns: repeat(2, 1fr); }
+  .practices-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .hero { padding: 32px 20px 40px; }
+  .hero h1 { font-size: 24px; }
+  .content-area { padding: 20px 16px; }
+  .analytics-grid { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- MS 365 Suite Bar -->
+<div class="suite-bar">
+  <div class="waffle">⊞</div>
+  <div class="suite-logo">Microsoft <span>365</span></div>
+  <div class="suite-bar-right">
+    <div class="suite-icon-btn" title="Settings">⚙</div>
+    <div class="suite-icon-btn" title="Help">?</div>
+    <div class="suite-avatar" title="Your Profile">AK</div>
+  </div>
+</div>
+
+<!-- SharePoint Nav Bar -->
+<nav class="sp-navbar">
+  <div class="nav-site-name">
+    <div class="site-icon">🤖</div>
+    AI Prompt Hub
+  </div>
+  <div class="nav-links">
+    <a class="nav-link active" onclick="showSection('home')">Home</a>
+    <a class="nav-link" onclick="showSection('prompts')">Prompt Library</a>
+    <a class="nav-link" onclick="showSection('governance')">Governance</a>
+    <a class="nav-link" onclick="showSection('analytics')">Analytics</a>
+  </div>
+  <div class="nav-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="navSearch" placeholder="Search prompts..." oninput="handleNavSearch(this.value)" />
+  </div>
+  <div class="nav-right">
+    <div class="nav-icon-btn" title="Share">↗</div>
+    <div class="nav-icon-btn" title="Settings">⚙</div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <a class="sidebar-item active" onclick="showSection('home')">
+        <span class="item-icon">🏠</span> Home
+      </a>
+      <a class="sidebar-item" onclick="showSection('prompts')">
+        <span class="item-icon">📚</span> All Prompts
+        <span class="item-count">47</span>
+      </a>
+      <a class="sidebar-item" onclick="openSubmitModal()">
+        <span class="item-icon">➕</span> Submit a Prompt
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Teams</div>
+      <a class="sidebar-item" onclick="filterByTeam('HR')">
+        <span class="item-icon">👥</span> HR
+        <span class="item-count">8</span>
+      </a>
+      <a class="sidebar-item" onclick="filterByTeam('Engineering')">
+        <span class="item-icon">⚙️</span> Engineering
+        <span class="item-count">9</span>
+      </a>
+      <a class="sidebar-item" onclick="filterByTeam('Product')">
+        <span class="item-icon">🗂️</span> Product
+        <span class="item-count">7</span>
+      </a>
+      <a class="sidebar-item" onclick="filterByTeam('Sales')">
+        <span class="item-icon">📈</span> Sales
+        <span class="item-count">8</span>
+      </a>
+      <a class="sidebar-item" onclick="filterByTeam('Marketing')">
+        <span class="item-icon">📣</span> Marketing
+        <span class="item-count">7</span>
+      </a>
+      <a class="sidebar-item" onclick="filterByTeam('Operations')">
+        <span class="item-icon">⚙</span> Operations
+        <span class="item-count">6</span>
+      </a>
+      <a class="sidebar-item" onclick="filterByTeam('Leadership')">
+        <span class="item-icon">🏆</span> Leadership
+        <span class="item-count">2</span>
+      </a>
+      <a class="sidebar-item" onclick="filterByTeam('Bots & Agents')">
+        <span class="item-icon">🤖</span> Bots &amp; Agents
+        <span class="item-count">5</span>
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Resources</div>
+      <a class="sidebar-item">
+        <span class="item-icon">📋</span> Prompt Template
+      </a>
+      <a class="sidebar-item">
+        <span class="item-icon">📖</span> Writing Guide
+      </a>
+      <a class="sidebar-item">
+        <span class="item-icon">🎓</span> AI Best Practices
+      </a>
+      <a class="sidebar-item">
+        <span class="item-icon">💬</span> Teams Channel
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- ═══ HOME SECTION ═══ -->
+    <div id="section-home">
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-content">
+          <div class="hero-eyebrow">✨ Enterprise AI Prompt Library</div>
+          <h1>Find, Reuse & Share AI Prompts</h1>
+          <p>A centralized hub for high-quality, team-tested AI prompts. Discover what works, contribute your best prompts, and accelerate your team's AI adoption.</p>
+          <div class="hero-search">
+            <input type="text" id="heroSearch" placeholder="Search by keyword, team, or use case..." oninput="handleHeroSearch(this.value)" />
+            <button class="hero-search-btn" onclick="doSearch()">Search</button>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><strong id="heroCount">—</strong> Prompts Published</div>
+            <div class="hero-stat"><strong>7</strong> Teams Contributing</div>
+            <div class="hero-stat"><strong>1.2k</strong> Uses This Month</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-area">
+
+        <!-- Analytics Tiles -->
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="analytics-value">47</div>
+            <div class="analytics-label">Total Prompts</div>
+            <div class="analytics-bar"><div class="analytics-fill" style="width:78%; background:var(--sp-blue)"></div></div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-value" style="color:var(--sp-green)">1,243</div>
+            <div class="analytics-label">Prompt Uses This Month</div>
+            <div class="analytics-bar"><div class="analytics-fill" style="width:62%; background:var(--sp-green)"></div></div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-value" style="color:var(--sp-purple)">12</div>
+            <div class="analytics-label">Pending Review</div>
+            <div class="analytics-bar"><div class="analytics-fill" style="width:25%; background:var(--sp-purple)"></div></div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-value" style="color:var(--sp-orange)">4.7★</div>
+            <div class="analytics-label">Avg. Prompt Rating</div>
+            <div class="analytics-bar"><div class="analytics-fill" style="width:94%; background:var(--sp-orange)"></div></div>
+          </div>
+        </div>
+
+        <!-- Featured Prompt -->
+        <div class="featured-card" onclick="openPromptModal(0)">
+          <div>
+            <div class="featured-label">⭐ Prompt of the Week</div>
+            <div class="featured-title">Performance Review Summary Generator</div>
+            <div class="featured-desc">Automatically draft balanced, actionable performance review summaries from raw feedback data. Used by 143 HR professionals this month.</div>
+            <div class="featured-cta">View Prompt →</div>
+          </div>
+          <div class="featured-icon">🤖</div>
+        </div>
+
+        <!-- Browse by Category -->
+        <div class="section-header">
+          <div class="section-title"><span class="title-icon">🗂</span> Browse by Team</div>
+          <a class="section-link" onclick="showSection('prompts')">View all prompts →</a>
+        </div>
+        <div class="category-grid" id="categoryGrid">
+          <div class="category-card" onclick="filterByTeam('HR')">
+            <div class="cat-icon">👥</div>
+            <div class="cat-name">HR</div>
+            <div class="cat-count">8 prompts</div>
+          </div>
+          <div class="category-card" onclick="filterByTeam('Engineering')">
+            <div class="cat-icon">⚙️</div>
+            <div class="cat-name">Engineering</div>
+            <div class="cat-count">9 prompts</div>
+          </div>
+          <div class="category-card" onclick="filterByTeam('Product')">
+            <div class="cat-icon">🗂️</div>
+            <div class="cat-name">Product</div>
+            <div class="cat-count">7 prompts</div>
+          </div>
+          <div class="category-card" onclick="filterByTeam('Sales')">
+            <div class="cat-icon">📈</div>
+            <div class="cat-name">Sales</div>
+            <div class="cat-count">8 prompts</div>
+          </div>
+          <div class="category-card" onclick="filterByTeam('Marketing')">
+            <div class="cat-icon">📣</div>
+            <div class="cat-name">Marketing</div>
+            <div class="cat-count">7 prompts</div>
+          </div>
+          <div class="category-card" onclick="filterByTeam('Operations')">
+            <div class="cat-icon">⚙</div>
+            <div class="cat-name">Operations</div>
+            <div class="cat-count">6 prompts</div>
+          </div>
+          <div class="category-card" onclick="filterByTeam('Leadership')">
+            <div class="cat-icon">🏆</div>
+            <div class="cat-name">Leadership</div>
+            <div class="cat-count">2 prompts</div>
+          </div>
+          <div class="category-card" onclick="filterByTeam('Bots & Agents')">
+            <div class="cat-icon">🤖</div>
+            <div class="cat-name">Bots &amp; Agents</div>
+            <div class="cat-count">5 prompts</div>
+          </div>
+        </div>
+
+        <!-- Trending Prompts -->
+        <div class="section-header">
+          <div class="section-title"><span class="title-icon">🔥</span> Trending This Week</div>
+          <a class="section-link" onclick="showSection('prompts')">See all →</a>
+        </div>
+        <div class="prompt-grid" id="trendingGrid"></div>
+
+        <!-- Submit CTA -->
+        <div class="submit-cta" onclick="openSubmitModal()">
+          <div class="submit-cta-icon">💡</div>
+          <h3>Have a great prompt?</h3>
+          <p>Share it with your colleagues and help the whole organization work smarter with AI.</p>
+          <button class="btn-primary">+ Submit a Prompt</button>
+        </div>
+
+      </div>
+    </div><!-- /home -->
+
+    <!-- ═══ PROMPTS SECTION ═══ -->
+    <div id="section-prompts" class="hidden">
+      <div class="content-area">
+        <div class="section-header" style="margin-bottom:8px">
+          <div class="section-title"><span class="title-icon">📚</span> Prompt Library</div>
+          <button class="btn-primary" onclick="openSubmitModal()">+ Submit Prompt</button>
+        </div>
+        <p style="color:var(--text-secondary); font-size:13px; margin-bottom:20px">
+          Browse, filter, and discover team-tested AI prompts across the organization.
+        </p>
+
+        <!-- Filters -->
+        <div class="filter-bar" id="fb-team">
+          <span class="filter-label">Team:</span>
+          <span class="filter-chip active" onclick="setTeamFilter('All', this)">All</span>
+          <span class="filter-chip" onclick="setTeamFilter('HR', this)">👥 HR</span>
+          <span class="filter-chip" onclick="setTeamFilter('Engineering', this)">⚙️ Engineering</span>
+          <span class="filter-chip" onclick="setTeamFilter('Product', this)">🗂️ Product</span>
+          <span class="filter-chip" onclick="setTeamFilter('Sales', this)">📈 Sales</span>
+          <span class="filter-chip" onclick="setTeamFilter('Marketing', this)">📣 Marketing</span>
+          <span class="filter-chip" onclick="setTeamFilter('Operations', this)">⚙ Operations</span>
+          <span class="filter-chip" onclick="setTeamFilter('Leadership', this)">🏆 Leadership</span>
+          <span class="filter-chip" onclick="setTeamFilter('Bots &amp; Agents', this)">🤖 Bots &amp; Agents</span>
+        </div>
+        <div class="filter-bar" id="fb-project">
+          <span class="filter-label">Project Type:</span>
+          <span class="filter-chip active" onclick="setProjectFilter('All', this)">All</span>
+          <span class="filter-chip" onclick="setProjectFilter('Program Management', this)">📋 Program Mgmt</span>
+          <span class="filter-chip" onclick="setProjectFilter('Product Development', this)">🗂 Product Dev</span>
+          <span class="filter-chip" onclick="setProjectFilter('Engineering', this)">⚙️ Engineering</span>
+          <span class="filter-chip" onclick="setProjectFilter('Go-to-Market', this)">📈 Go-to-Market</span>
+          <span class="filter-chip" onclick="setProjectFilter('Talent & HR', this)">👥 Talent & HR</span>
+          <span class="filter-chip" onclick="setProjectFilter('Analytics & Research', this)">📊 Analytics</span>
+          <span class="filter-chip" onclick="setProjectFilter('Security & Legal', this)">🔒 Security</span>
+          <span class="filter-chip" onclick="setProjectFilter('Communications', this)">💬 Comms</span>
+        </div>
+        <div class="filter-bar" id="fb-stage">
+          <span class="filter-label">Delivery Stage:</span>
+          <span class="filter-chip active" onclick="setStageFilter('All', this)">All Stages</span>
+          <span class="filter-chip" onclick="setStageFilter('Initiation', this)">🚦 Initiation</span>
+          <span class="filter-chip" onclick="setStageFilter('Discovery', this)">🔍 Discovery</span>
+          <span class="filter-chip" onclick="setStageFilter('Planning', this)">📐 Planning</span>
+          <span class="filter-chip" onclick="setStageFilter('Execution', this)">⚡ Execution</span>
+          <span class="filter-chip" onclick="setStageFilter('Monitoring & Control', this)">📊 Monitoring</span>
+          <span class="filter-chip" onclick="setStageFilter('Closure', this)">✅ Closure</span>
+        </div>
+        <div class="filter-bar" id="fb-complex">
+          <span class="filter-label">Complexity:</span>
+          <span class="filter-chip active" onclick="setComplexFilter('All', this)">All Levels</span>
+          <span class="filter-chip" onclick="setComplexFilter('Beginner', this)">🟢 Beginner</span>
+          <span class="filter-chip" onclick="setComplexFilter('Intermediate', this)">🟡 Intermediate</span>
+          <span class="filter-chip" onclick="setComplexFilter('Advanced', this)">🔴 Advanced</span>
+          <select class="filter-select" onchange="setSortOrder(this.value)">
+            <option value="trending">Sort: Trending</option>
+            <option value="newest">Sort: Newest</option>
+            <option value="rating">Sort: Highest Rated</option>
+            <option value="az">Sort: A–Z</option>
+          </select>
+        </div>
+
+        <div class="prompt-grid" id="promptGrid"></div>
+        <div id="noResults" class="hidden" style="text-align:center; padding:48px; color:var(--text-muted)">
+          <div style="font-size:48px; margin-bottom:12px">🔍</div>
+          <div style="font-size:16px; font-weight:600; margin-bottom:6px">No prompts found</div>
+          <div style="font-size:13px">Try adjusting your filters or <a onclick="openSubmitModal()" style="color:var(--sp-blue); cursor:pointer">submit a new prompt</a></div>
+        </div>
+      </div>
+    </div><!-- /prompts -->
+
+    <!-- ═══ GOVERNANCE SECTION ═══ -->
+    <div id="section-governance" class="hidden">
+      <div class="content-area">
+        <div class="section-header">
+          <div class="section-title"><span class="title-icon">🏛</span> Governance Model</div>
+        </div>
+        <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px; line-height:1.6">
+          The AI Prompt Hub is governed by a three-tier role model to ensure quality, accuracy, and continual improvement of published prompts.
+        </p>
+
+        <!-- Roles -->
+        <div class="section-header"><div class="section-title" style="font-size:16px">Roles & Responsibilities</div></div>
+        <div class="governance-grid" style="margin-bottom:32px">
+          <div class="governance-card">
+            <div class="gov-icon">✍️</div>
+            <div class="gov-title">Contributor</div>
+            <div class="gov-role">Any employee</div>
+            <div class="gov-desc">Team members who discover, test, and submit high-quality prompts for their team's use cases.</div>
+            <div class="gov-perms">
+              <div class="gov-perm">Submit new prompts via the form</div>
+              <div class="gov-perm">Rate and comment on prompts</div>
+              <div class="gov-perm">Flag outdated or incorrect prompts</div>
+              <div class="gov-perm">Suggest edits via comments</div>
+            </div>
+          </div>
+          <div class="governance-card">
+            <div class="gov-icon">🔍</div>
+            <div class="gov-title">Reviewer</div>
+            <div class="gov-role">Team leads & AI Champions</div>
+            <div class="gov-desc">Designated SMEs who review, validate, and approve submitted prompts before publishing.</div>
+            <div class="gov-perms">
+              <div class="gov-perm">Approve or reject submissions</div>
+              <div class="gov-perm">Edit prompt text and metadata</div>
+              <div class="gov-perm">Request revisions from contributors</div>
+              <div class="gov-perm">Assign tags and categories</div>
+              <div class="gov-perm">Archive outdated prompts</div>
+            </div>
+          </div>
+          <div class="governance-card">
+            <div class="gov-icon">⚙️</div>
+            <div class="gov-title">Admin</div>
+            <div class="gov-role">Site owners</div>
+            <div class="gov-desc">Platform administrators who manage taxonomy, user access, integrations, and site configuration.</div>
+            <div class="gov-perms">
+              <div class="gov-perm">Manage taxonomy and tag structure</div>
+              <div class="gov-perm">Assign and revoke roles</div>
+              <div class="gov-perm">Configure approval workflows</div>
+              <div class="gov-perm">Monitor analytics and usage</div>
+              <div class="gov-perm">Manage Teams/M365 integrations</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approval Workflow -->
+        <div class="section-header"><div class="section-title" style="font-size:16px">📋 Submission → Publication Workflow</div></div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:32px">
+          <div style="display:flex; align-items:flex-start; gap:0; flex-wrap:wrap">
+            <div style="flex:1; min-width:140px; text-align:center; padding:0 12px; position:relative">
+              <div style="width:40px;height:40px;background:var(--sp-blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin:0 auto 10px">1</div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px">Submit</div>
+              <div style="font-size:12px;color:var(--text-muted)">Contributor fills the prompt form with all required fields</div>
+            </div>
+            <div style="display:flex;align-items:center;padding-top:8px;color:var(--border-dark);font-size:20px">→</div>
+            <div style="flex:1; min-width:140px; text-align:center; padding:0 12px">
+              <div style="width:40px;height:40px;background:var(--sp-purple);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin:0 auto 10px">2</div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px">Auto-Notify</div>
+              <div style="font-size:12px;color:var(--text-muted)">Teams bot notifies team Reviewer for their category</div>
+            </div>
+            <div style="display:flex;align-items:center;padding-top:8px;color:var(--border-dark);font-size:20px">→</div>
+            <div style="flex:1; min-width:140px; text-align:center; padding:0 12px">
+              <div style="width:40px;height:40px;background:var(--sp-teal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin:0 auto 10px">3</div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px">Review</div>
+              <div style="font-size:12px;color:var(--text-muted)">Reviewer tests the prompt and provides feedback within 3 days</div>
+            </div>
+            <div style="display:flex;align-items:center;padding-top:8px;color:var(--border-dark);font-size:20px">→</div>
+            <div style="flex:1; min-width:140px; text-align:center; padding:0 12px">
+              <div style="width:40px;height:40px;background:var(--sp-green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin:0 auto 10px">4</div>
+              <div style="font-size:13px;font-weight:700;margin-bottom:4px">Publish</div>
+              <div style="font-size:12px;color:var(--text-muted)">Approved prompt is published and contributor is notified</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Best Practices -->
+        <div class="section-header"><div class="section-title" style="font-size:16px">✅ Prompt Writing Best Practices</div></div>
+        <div class="practices-grid">
+          <div class="practice-card dos">
+            <div class="practice-title" style="color:var(--sp-green)">✅ Do's</div>
+            <div class="practice-list">
+              <div class="practice-item do">Use clear, specific instructions — tell the AI exactly what you want</div>
+              <div class="practice-item do">Define the output format (e.g., bullet list, table, paragraph)</div>
+              <div class="practice-item do">Use placeholders like [employee name] for variable inputs</div>
+              <div class="practice-item do">Include tone/style guidance (e.g., "professional", "concise")</div>
+              <div class="practice-item do">Test your prompt with at least 3 different inputs before submitting</div>
+              <div class="practice-item do">Add an example output to help users know what to expect</div>
+              <div class="practice-item do">Version your prompt when making significant changes</div>
+            </div>
+          </div>
+          <div class="practice-card donts">
+            <div class="practice-title" style="color:var(--sp-red)">❌ Don'ts</div>
+            <div class="practice-list">
+              <div class="practice-item dont">Don't include real personal data or PII in prompts or examples</div>
+              <div class="practice-item dont">Don't use vague instructions like "write something about X"</div>
+              <div class="practice-item dont">Don't share prompts that include confidential company info</div>
+              <div class="practice-item dont">Don't assume the AI knows your internal jargon without context</div>
+              <div class="practice-item dont">Don't submit untested prompts — validate outputs first</div>
+              <div class="practice-item dont">Don't use prompts to generate content outside approved AI tools</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Naming Conventions -->
+        <div class="section-header"><div class="section-title" style="font-size:16px">🏷 Naming Conventions</div></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:32px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Title Format</div>
+              <div style="background:var(--bg);border-radius:4px;padding:12px;font-family:monospace;font-size:13px;color:var(--sp-blue)">
+                [Action] + [Output] + [Context]<br>
+                <span style="color:var(--text-secondary);font-size:12px">e.g. "Generate Performance Review Summary"</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Tag Format</div>
+              <div style="background:var(--bg);border-radius:4px;padding:12px;font-size:13px;color:var(--text-secondary)">
+                Lowercase, hyphen-separated<br>
+                <span style="color:var(--sp-blue);font-family:monospace;font-size:12px">e.g. performance-review, api-docs</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">Version Format</div>
+              <div style="background:var(--bg);border-radius:4px;padding:12px;font-family:monospace;font-size:13px;color:var(--text-secondary)">
+                v1.0 → v1.1 (minor edit)<br>
+                v1.0 → v2.0 (prompt rewrite)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /governance -->
+
+    <!-- ═══ ANALYTICS SECTION ═══ -->
+    <div id="section-analytics" class="hidden">
+      <div class="content-area">
+        <div class="section-header">
+          <div class="section-title"><span class="title-icon">📊</span> Usage Analytics</div>
+        </div>
+        <p style="color:var(--text-secondary);font-size:14px;margin-bottom:24px">Track prompt adoption, team engagement, and library health across the organization.</p>
+
+        <div class="analytics-grid" style="margin-bottom:28px">
+          <div class="analytics-card">
+            <div class="analytics-value">47</div>
+            <div class="analytics-label">Published Prompts</div>
+            <div class="analytics-bar"><div class="analytics-fill" style="width:78%; background:var(--sp-blue)"></div></div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-value" style="color:var(--sp-green)">1,243</div>
+            <div class="analytics-label">Total Uses (March)</div>
+            <div class="analytics-bar"><div class="analytics-fill" style="width:82%; background:var(--sp-green)"></div></div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-value" style="color:var(--sp-purple)">23</div>
+            <div class="analytics-label">Active Contributors</div>
+            <div class="analytics-bar"><div class="analytics-fill" style="width:46%; background:var(--sp-purple)"></div></div>
+          </div>
+          <div class="analytics-card">
+            <div class="analytics-value" style="color:var(--sp-teal)">92%</div>
+            <div class="analytics-label">Approval Rate</div>
+            <div class="analytics-bar"><div class="analytics-fill" style="width:92%; background:var(--sp-teal)"></div></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">
+          <!-- Top Prompts -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:6px">🔥 Most Used Prompts</div>
+            <div style="display:flex;flex-direction:column;gap:12px" id="topPromptsAnalytics"></div>
+          </div>
+          <!-- Team Breakdown -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+            <div style="font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:6px">👥 Usage by Team</div>
+            <div style="display:flex;flex-direction:column;gap:12px" id="teamAnalytics"></div>
+          </div>
+        </div>
+
+        <!-- Automation Ideas -->
+        <div class="section-header"><div class="section-title" style="font-size:16px">🤖 Recommended Automations</div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:32px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+            <div style="font-size:24px;margin-bottom:10px">📬</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:6px">Auto-Notification</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.5">When a prompt is submitted, Power Automate triggers a Teams card to the team's designated Reviewer with a one-click approve/reject.</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+            <div style="font-size:24px;margin-bottom:10px">📊</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:6px">Weekly Digest Bot</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.5">A scheduled Teams message every Monday showing the top 3 most-used prompts of the previous week with usage stats.</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+            <div style="font-size:24px;margin-bottom:10px">🔔</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:6px">Stale Prompt Alert</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.5">Flag prompts that haven't been reviewed in 90 days and auto-notify owners to validate that the prompt is still current and accurate.</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+            <div style="font-size:24px;margin-bottom:10px">🏅</div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:6px">Contributor Recognition</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.5">Monthly leaderboard posted in the AI Champions Teams channel celebrating top contributors by prompts submitted and total usage.</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /analytics -->
+
+  </main>
+</div>
+
+<!-- ═══ PROMPT DETAIL MODAL ═══ -->
+<div class="modal-overlay" id="promptModal" onclick="closePromptModal(event)">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div id="modalBadge" style="margin-bottom:8px"></div>
+        <div id="modalTitle" style="font-size:18px;font-weight:700;color:var(--text);line-height:1.3"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+          <span id="modalVersion" class="version-tag"></span>
+          <span id="modalComplexity"></span>
+          <span style="color:var(--text-muted);font-size:12px" id="modalDate"></span>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closePromptModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="modal-section-label">🎯 Use Case / Problem Statement</div>
+        <div class="modal-section-content" id="modalUseCase"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">💬 Prompt Text</div>
+        <div class="prompt-box" id="modalPrompt">
+          <button class="copy-btn" onclick="copyPrompt()" id="copyBtn">Copy</button>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">📥 Inputs Required</div>
+        <div class="inputs-list" id="modalInputs"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">📤 Expected Output</div>
+        <div class="modal-section-content" id="modalExpected"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">✅ Example Output</div>
+        <div class="example-output" id="modalExample"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">🏷 Tags</div>
+        <div class="card-tags" id="modalTags" style="margin-bottom:0"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-label">👤 Owner</div>
+        <div class="modal-section-content" id="modalOwner"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="copyPrompt()">📋 Copy Prompt</button>
+      <button class="btn-secondary" id="likeModalBtn" onclick="likeFromModal()">♡ Like</button>
+      <button class="btn-secondary" style="margin-left:auto">💬 Comment</button>
+      <button class="btn-secondary">🔗 Share</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SUBMIT MODAL ═══ -->
+<div class="submit-modal-overlay" id="submitModal" onclick="closeSubmitModal(event)">
+  <div class="submit-modal">
+    <div class="submit-modal-header">
+      <div style="font-size:28px">✍️</div>
+      <div>
+        <div class="submit-modal-title">Submit a Prompt</div>
+        <div style="color:rgba(255,255,255,0.75);font-size:13px">Share your prompt with the organization</div>
+      </div>
+      <button class="modal-close" onclick="closeSubmitModal()" style="color:rgba(255,255,255,0.7);margin-left:auto">✕</button>
+    </div>
+    <div class="submit-modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Title <span class="required">*</span></label>
+          <input id="sm-title" class="form-input" type="text" placeholder="e.g. Generate API Documentation Draft" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Team <span class="required">*</span></label>
+          <select id="sm-team" class="form-select">
+            <option value="">Select team...</option>
+            <option>HR</option>
+            <option>Engineering</option>
+            <option>Product</option>
+            <option>Sales</option>
+            <option>Marketing</option>
+            <option>Operations</option>
+            <option>Leadership</option>
+            <option>Bots &amp; Agents</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Use Case / Problem Statement <span class="required">*</span></label>
+        <textarea id="sm-usecase" class="form-textarea" placeholder="Describe the problem this prompt solves and when to use it..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prompt Text <span class="required">*</span></label>
+        <textarea id="sm-prompt" class="form-textarea prompt-input" placeholder="Enter your full prompt here. Use {{variable_name}} for variable inputs..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Inputs Required</label>
+          <input id="sm-inputs" class="form-input" type="text" placeholder="e.g. Employee Name, Goals, Ratings (comma-separated)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Complexity <span class="required">*</span></label>
+          <select id="sm-complexity" class="form-select">
+            <option value="">Select level...</option>
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Advanced</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expected Output</label>
+        <textarea id="sm-expected" class="form-textarea" style="min-height:80px" placeholder="Describe what a successful output looks like..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Example Output</label>
+        <textarea id="sm-example" class="form-textarea" style="min-height:80px" placeholder="Paste a sample output (anonymized) to help reviewers evaluate the prompt..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags / Keywords</label>
+        <input id="sm-tags" class="form-input" type="text" placeholder="e.g. performance-review, hr, documentation (comma-separated)" />
+      </div>
+    </div>
+    <div class="submit-modal-footer">
+      <button class="btn-secondary" onclick="closeSubmitModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitPrompt()">Submit for Review →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Database (shared localStorage store with prompt-database.html) ──────────
+const DB_KEY = 'promptdb_v4';
+
+function loadDB() {
+  const raw = localStorage.getItem(DB_KEY);
+  return raw ? JSON.parse(raw) : { prompts: [] };
+}
+
+// Adapter: converts nested DB schema → flat hub format
+function adaptPrompt(p, idx) {
+  const m = p.meta, c = p.content, t = p.taxonomy, s = p.stats || {};
+  return {
+    id: p.id || idx,
+    title: m.title,
+    team: m.team,
+    complexity: m.complexity || 'Intermediate',
+    version: m.version || 'v1.0',
+    date: m.updated_at || m.created_at || '',
+    owner: m.owner || '',
+    projectType: m.project_type || '',
+    deliveryStage: m.delivery_stage || '',
+    manualEffort: m.manual_effort || '',
+    aiTool: m.ai_tool || 'Any',
+    agentSolve: m.agent_solve || '',
+    aiSolve: m.ai_solve || '',
+    useCase: c.use_case || '',
+    prompt: c.prompt_text || '',
+    inputs: (c.inputs || []).map(i => i.label || i.key),
+    expected: c.expected_output || '',
+    example: c.example_output || '',
+    tags: t.tags || [],
+    likes: s.likes || 0,
+    trending: (s.copies || 0) > 10 || (s.likes || 0) > 12
+  };
+}
+
+function getPrompts() {
+  const db = loadDB();
+  return (db.prompts || [])
+    .filter(p => p.meta && p.meta.status === 'published')
+    .map(adaptPrompt);
+}
+
+// ─── State ───────────────────────────────────────────────────────────────────
+// NOTE: hardcoded prompts array removed — data comes from the shared database
+const prompts_legacy_REMOVED = [
+  {
+    id: 0,
+    title: "Performance Review Summary Generator",
+    team: "HR",
+    complexity: "Intermediate",
+    useCase: "Generate structured, balanced, and actionable performance review summaries directly from raw input data such as goals, peer feedback, and rating scores — saving managers significant writing time.",
+    prompt: `Create a structured performance review summary for [Employee Name] based on the following inputs:
+
+Goals set this cycle: [list of goals]
+Achievements: [key achievements]
+Manager rating: [1-5 scale]
+Peer feedback: [summary of peer comments]
+Areas for development: [noted gaps]
+
+Format the summary with:
+• An opening paragraph summarizing overall performance
+• 3 key accomplishments with specific impact
+• 2–3 development areas with actionable next steps
+• A recommended rating: Exceeds / Meets / Below Expectations
+
+Tone: Professional, balanced, and growth-oriented. Avoid jargon.`,
+    inputs: ["Employee Name", "Goals (list)", "Key Achievements", "Manager Rating (1–5)", "Peer Feedback Summary", "Development Areas"],
+    expected: "A 3-section performance review (250–350 words) covering accomplishments, development areas, and a recommended rating tier.",
+    example: `Alex delivered exceptional results this cycle, exceeding all three of their stated goals — reducing onboarding time by 22%, launching the new employee portal ahead of schedule, and achieving a 4.6/5.0 peer feedback score...\n\nKey Accomplishments:\n• Led portal migration impacting 1,200 employees, cutting support tickets by 18%\n• Mentored two junior associates who both received "Meets Expectations" ratings\n• Spearheaded benefits FAQ automation, saving ~4 hrs/week of HR effort\n\nRecommended Rating: Exceeds Expectations`,
+    tags: ["performance-review", "hr", "documentation", "management"],
+    owner: "People Operations Team",
+    version: "v2.1",
+    date: "Mar 18, 2026",
+    likes: 43,
+    trending: true
+  },
+  {
+    id: 1,
+    title: "API Documentation Draft Generator",
+    team: "Engineering",
+    complexity: "Advanced",
+    useCase: "Rapidly generate comprehensive API documentation including endpoints, request/response schemas, error codes, and examples — reducing documentation time from hours to minutes.",
+    prompt: `Generate detailed API documentation for the following service:
+
+Service Name: [Service Name]
+Base URL: [base URL]
+Authentication: [auth method]
+Endpoints to document: [list of endpoints with HTTP methods]
+Tech stack: [language/framework]
+
+For each endpoint, include:
+• Description and purpose
+• Request format (headers, params, body schema)
+• Response format (success and error schemas)
+• HTTP status codes and meanings
+• cURL and code snippet example
+• Rate limiting details (if applicable)
+
+Output format: Markdown-ready. Use clear section headers.`,
+    inputs: ["Service Name", "Base URL", "Auth Method", "Endpoint List", "Tech Stack"],
+    expected: "Full Markdown API documentation covering all endpoints with request/response examples, error handling, and code snippets.",
+    example: `## POST /api/v1/users\n\n**Description:** Creates a new user account.\n\n**Request Body:**\n\`\`\`json\n{\n  "email": "string (required)",\n  "name": "string (required)",\n  "role": "admin | member (optional, default: member)"\n}\n\`\`\`\n\n**Response (201):**\n\`\`\`json\n{"id": "usr_abc123", "email": "...", "created_at": "..."}\n\`\`\``,
+    tags: ["api", "documentation", "engineering", "markdown"],
+    owner: "Platform Engineering",
+    version: "v1.3",
+    date: "Mar 20, 2026",
+    likes: 37,
+    trending: true
+  },
+  {
+    id: 2,
+    title: "Product Requirements Document (PRD)",
+    team: "Product",
+    complexity: "Advanced",
+    useCase: "Create a complete, structured PRD from a feature idea — including problem statement, user stories, success metrics, and edge cases — in minutes instead of hours.",
+    prompt: `Write a Product Requirements Document (PRD) for the following feature:
+
+Feature: [Feature Name / Idea]
+Product context: [brief product description]
+Target users: [user persona(s)]
+Problem being solved: [pain point description]
+
+Structure the PRD with:
+1. Executive Summary (2–3 sentences)
+2. Problem Statement & User Pain Points
+3. Goals & Success Metrics (SMART format)
+4. User Stories (As a [user], I want [action] so that [outcome])
+5. Functional Requirements (bulleted list, P0/P1/P2 priority)
+6. Non-Functional Requirements (performance, security, accessibility)
+7. Out of Scope
+8. Open Questions & Edge Cases
+9. Dependencies & Risks
+
+Keep it concise, engineering-ready, and free of marketing language.`,
+    inputs: ["Feature Name", "Product Context", "Target User Personas", "Problem Description"],
+    expected: "A 600–900 word PRD covering all 9 sections, formatted for engineering and design handoff.",
+    example: `## Executive Summary\nThis feature enables recruiters to bulk-schedule interviews from within the ATS, reducing manual coordination overhead by an estimated 40%...\n\n## User Stories\n- As a recruiter, I want to select multiple candidates and propose time slots so that I avoid back-and-forth emails.\n- As a candidate, I want to receive a scheduling link so I can self-select a time that works for me.`,
+    tags: ["prd", "product", "requirements", "user-stories"],
+    owner: "Product Management Guild",
+    version: "v1.4",
+    date: "Mar 15, 2026",
+    likes: 29,
+    trending: false
+  },
+  {
+    id: 3,
+    title: "Personalized Sales Outreach Email",
+    team: "Sales",
+    complexity: "Beginner",
+    useCase: "Draft highly personalized, compelling outreach emails at scale — tailored to prospect industry, role, and pain points — without spending 20 minutes per email.",
+    prompt: `Draft a personalized outreach email for the following prospect:
+
+Prospect Name: [First Name]
+Title / Role: [Job Title]
+Company: [Company Name]
+Industry: [Industry]
+Known pain points: [1–2 specific challenges]
+Our product/service: [brief description of what we offer]
+Call to action: [desired next step, e.g., 15-min call]
+
+Requirements:
+• Subject line that's curiosity-driven, not clickbait
+• Opening that references something specific to their industry or role
+• Value proposition tied to their exact pain point (no generic pitches)
+• 1 clear CTA in the final sentence
+• Total length: 120–150 words max
+• Tone: Confident, peer-to-peer, not pushy`,
+    inputs: ["Prospect First Name", "Job Title", "Company Name", "Industry", "Pain Points", "Product Description", "Desired CTA"],
+    expected: "A 120–150 word outreach email with subject line, personalized opening, clear value prop, and single CTA.",
+    example: `Subject: How [Company] could cut hiring time by 30%\n\nHi Jordan,\n\nHeads of Talent at mid-size fintechs are telling me 2026's biggest headache is closing roles fast enough to not lose candidates to bigger brands.\n\nWe help recruiting teams like yours run structured interviews and scorecards inside the tools you already use — so you stop losing top picks to slow process.\n\nOpen to a 15-minute walk-through next week?\n\n[Your Name]`,
+    tags: ["outreach", "email", "sales", "personalization"],
+    owner: "Sales Enablement",
+    version: "v3.0",
+    date: "Mar 22, 2026",
+    likes: 58,
+    trending: true
+  },
+  {
+    id: 4,
+    title: "Multi-Channel Campaign Plan",
+    team: "Marketing",
+    complexity: "Advanced",
+    useCase: "Generate a complete go-to-market campaign plan across email, social, and paid ads — including messaging, audience targeting, and KPIs — for any product launch or feature announcement.",
+    prompt: `Create a multi-channel campaign plan for the following launch:
+
+Product/Feature: [Product or Feature Name]
+Launch date: [target date]
+Target audience: [primary persona(s)]
+Key differentiators: [top 2–3 value props]
+Budget tier: [Low / Medium / High]
+Goals: [e.g., 500 signups, 20% existing user activation]
+
+Provide a complete plan covering:
+1. Campaign Theme & Core Message
+2. Email Sequence (3 emails: teaser, launch, follow-up) with subject lines
+3. Social Media Plan (LinkedIn, X/Twitter, Instagram) — 5 posts each with copy
+4. Paid Ads Strategy (search + display) — audience targeting and 3 headline options
+5. KPIs & Success Metrics table (channel, metric, target, measurement tool)
+6. 4-week launch timeline with milestones`,
+    inputs: ["Product/Feature Name", "Launch Date", "Target Personas", "Value Propositions", "Budget Tier", "Campaign Goals"],
+    expected: "A structured 6-section campaign plan including copy, timelines, and KPIs across 3+ channels.",
+    example: `Campaign Theme: "Hire Smarter, Not Harder"\n\nEmail 1 (Teaser — 7 days pre-launch):\nSubject: Something big is coming for your recruiting stack...\nPreview: We've been heads-down building something recruiters have asked for.\n\nLinkedIn Post 1:\n"Recruiters: how many hours did you spend on interview scheduling last week? We built something to give that time back. 👀 [link]"`,
+    tags: ["campaign", "marketing", "launch", "email", "social"],
+    owner: "Brand & Demand Gen",
+    version: "v2.0",
+    date: "Mar 10, 2026",
+    likes: 31,
+    trending: false
+  },
+  {
+    id: 5,
+    title: "Project Plan with RAID Log",
+    team: "Operations",
+    complexity: "Intermediate",
+    useCase: "Build a comprehensive project plan including milestones, dependencies, and a fully populated RAID log (Risks, Assumptions, Issues, Decisions) from a project brief.",
+    prompt: `Create a complete project plan for the following:
+
+Project Name: [Project Name]
+Goal / Deliverable: [what success looks like]
+Timeline: [start date] to [end date]
+Team size: [number of people and key roles]
+Key constraints: [budget, tools, dependencies]
+
+Provide:
+1. Project Overview (goal, scope, stakeholders)
+2. Phased Timeline with milestones (use week numbers)
+3. Work Breakdown Structure (major workstreams → tasks)
+4. RAID Log table with 3 entries per category:
+   - Risks (likelihood, impact, mitigation)
+   - Assumptions (and what breaks if wrong)
+   - Issues (current blockers + owner)
+   - Decisions (decision, rationale, decision-maker)
+5. RACI chart for key workstreams
+
+Format: Use tables where appropriate. Markdown-compatible output.`,
+    inputs: ["Project Name", "Goal/Deliverable", "Start/End Dates", "Team Composition", "Constraints"],
+    expected: "A full project plan including phased timeline, WBS, RAID log, and RACI chart in Markdown format.",
+    example: `## Phase 1: Discovery & Planning (Weeks 1–2)\n- Week 1: Stakeholder interviews, current state mapping\n- Week 2: Requirements finalization, tooling decision\n\n## RAID Log\n| Category | Description | Owner | Status |\n|---|---|---|---|\n| Risk | Vendor delays on integration | PM | Monitoring |\n| Decision | Use Jira over Asana | Eng Lead | Confirmed |`,
+    tags: ["project-plan", "raid-log", "operations", "planning", "raci"],
+    owner: "PMO Office",
+    version: "v1.5",
+    date: "Mar 12, 2026",
+    likes: 22,
+    trending: false
+  },
+  {
+    id: 6,
+    title: "Weekly Engineering Planning Update",
+    team: "Engineering",
+    complexity: "Beginner",
+    useCase: "Draft a clear, structured weekly engineering update for leadership and cross-functional stakeholders from bullet-point meeting notes.",
+    prompt: `Draft a weekly engineering planning update email based on the following inputs:
+
+Week number / dates: [e.g., Week 12, Mar 18–22]
+Project milestones hit: [list of completed items]
+In-progress items: [what's currently being worked on]
+Blockers: [current blockers with owners]
+Coming up next week: [planned work]
+Team shout-outs (optional): [recognition moments]
+
+Format:
+• Subject line
+• 4 clearly labeled sections: ✅ Completed | 🔄 In Progress | 🚧 Blockers | 📅 Next Week
+• Concise bullet points (not paragraphs)
+• Closing line with overall team health sentiment
+• Tone: Transparent, confident, no jargon`,
+    inputs: ["Week Number/Dates", "Completed Milestones", "In-Progress Items", "Blockers", "Next Week Plans"],
+    expected: "A scannable ~200-word weekly engineering update email, ready to send to stakeholders.",
+    example: `Subject: Eng Update | Week 12 | Mar 18–22\n\n✅ Completed\n• Auth service migration to OAuth 2.0 — 100% complete, deployed to prod\n• Resolved 14 sprint backlog items (velocity: 42 pts)\n\n🔄 In Progress\n• API rate limiting feature — 60% complete, ETA: Mar 27\n\n🚧 Blockers\n• Waiting on design sign-off for new onboarding screens (Owner: Design, Sarah M.)\n\n📅 Next Week\n• Begin performance audit on search service\n• Sprint 24 planning on Monday\n\nOverall team health: 🟢 Strong`,
+    tags: ["weekly-update", "engineering", "stakeholder-comms", "planning"],
+    owner: "Engineering Leadership",
+    version: "v1.1",
+    date: "Mar 21, 2026",
+    likes: 19,
+    trending: false
+  },
+  {
+    id: 7,
+    title: "Candidate Fraud Detection Strategy & PRD",
+    team: "Product",
+    complexity: "Advanced",
+    useCase: "Write a combined one-page strategy and PRD for building or enhancing candidate fraud detection capabilities — covering detection signals, ML approaches, and compliance requirements.",
+    prompt: `Write a PRD and one-page strategy for: Detecting Candidate Fraud
+
+Context: [describe your recruiting platform and data available]
+Known fraud vectors: [e.g., identity fraud, AI-generated applications, impersonation]
+Existing signals: [any current detection in place]
+Compliance requirements: [GDPR, CCPA, EEOC, etc.]
+
+Deliverables:
+1. One-Page Strategy: Problem size, strategic approach, build/buy/partner recommendation
+2. PRD: Problem statement, user stories (for recruiters, fraud analysts, legal), detection signals list, ML feature candidates, success metrics, privacy requirements, rollout plan`,
+    inputs: ["Platform Context", "Known Fraud Vectors", "Existing Detection Signals", "Compliance Requirements"],
+    expected: "A one-page strategy + PRD covering fraud detection approach, signals, ML features, and compliance guardrails.",
+    example: `Strategy: Implement a multi-signal fraud risk score surfaced to recruiters at time of application review. Prioritize behavioral signals (typing cadence, copy-paste patterns) that don't require PII to be effective...\n\nDetection Signals:\n• Résumé text similarity score vs. public template databases\n• Application completion time (< 45 sec = elevated risk)\n• Identity document cross-check (via ID verification partner)`,
+    tags: ["fraud-detection", "prd", "product", "security", "ml"],
+    owner: "Trust & Safety Product",
+    version: "v1.0",
+    date: "Mar 8, 2026",
+    likes: 16,
+    trending: false
+  },
+  {
+    id: 8,
+    title: "Meeting Transcript Action Items Extractor",
+    team: "Operations",
+    complexity: "Beginner",
+    useCase: "Instantly extract all action items, owners, and deadlines from a meeting transcript or notes — eliminating the need to re-read long transcripts.",
+    prompt: `Analyze the following meeting transcript and extract all action items:
+
+Transcript: [paste transcript here]
+Meeting date: [date]
+Meeting title: [title]
+
+Return a structured table with columns:
+| # | Action Item | Owner | Due Date | Priority | Notes |
+
+After the table, provide:
+• A 3-sentence executive summary of the meeting
+• List of key decisions made
+• Any open questions that need follow-up
+
+Formatting: Use Markdown tables. If owner or due date is unclear, note as "TBD" and flag it.`,
+    inputs: ["Meeting Transcript", "Meeting Date", "Meeting Title"],
+    expected: "A Markdown table of action items with owners and dates, plus executive summary and decisions list.",
+    example: `| # | Action Item | Owner | Due Date | Priority |\n|---|---|---|---|---|\n| 1 | Update project charter with new scope | PM Lead | Mar 28 | High |\n| 2 | Schedule vendor demo for data team | Ops | Apr 1 | Medium |\n| 3 | Review legal requirements for EU launch | Legal | TBD | High |`,
+    tags: ["meeting", "action-items", "transcription", "productivity"],
+    owner: "Operations Enablement",
+    version: "v2.2",
+    date: "Mar 23, 2026",
+    likes: 51,
+    trending: true
+  },
+  {
+    id: 9,
+    title: "Executive Summary from Comms Threads",
+    team: "Leadership",
+    complexity: "Intermediate",
+    useCase: "Consolidate multiple Slack threads, email chains, or Teams messages into a single executive-ready status update — surfacing key decisions, blockers, and next steps.",
+    prompt: `Summarize the following communication threads into a single executive update:
+
+Threads/messages: [paste content from Slack/email/Teams]
+Context: [project or initiative name]
+Audience: [who will read this — C-suite, board, etc.]
+Desired length: [e.g., one page, 5 bullet points]
+
+Structure the update as:
+• TL;DR (2 sentences max)
+• Status: 🟢 On Track / 🟡 At Risk / 🔴 Off Track
+• Key Progress (3 bullets max)
+• Decisions Needed (if any)
+• Risks & Mitigations
+• Next Milestones with dates
+
+Tone: Executive-ready. No jargon. Confident but honest about risks.`,
+    inputs: ["Communication Thread Content", "Project/Initiative Name", "Target Audience", "Desired Length"],
+    expected: "A structured executive update with TL;DR, status, progress, decisions, risks, and next milestones.",
+    example: `TL;DR: The platform migration is on track for the April 15 cutover with one dependency risk that needs exec decision.\n\nStatus: 🟡 At Risk — vendor timeline slipped 5 days\n\nKey Progress:\n• Data migration 85% complete\n• UAT signed off by Finance and HR teams\n• Runbook reviewed and approved`,
+    tags: ["executive-summary", "leadership", "communication", "status-update"],
+    owner: "Chief of Staff",
+    version: "v1.2",
+    date: "Mar 17, 2026",
+    likes: 34,
+    trending: false
+  }
+];
+
+// ─── State ───────────────────────────────────────────────────────────────────
+let currentTeamFilter = 'All';
+let currentProjectFilter = 'All';
+let currentStageFilter = 'All';
+let currentComplexFilter = 'All';
+let currentSort = 'trending';
+let searchQuery = '';
+let currentPromptIndex = null;
+let likedPrompts = new Set();
+
+// ─── Section Navigation ───────────────────────────────────────────────────────
+function showSection(id) {
+  ['home','prompts','governance','analytics'].forEach(s => {
+    document.getElementById('section-' + s).classList.toggle('hidden', s !== id);
+  });
+  document.querySelectorAll('.nav-link').forEach((el, i) => {
+    const map = ['home','prompts','governance','analytics'];
+    el.classList.toggle('active', map[i] === id);
+  });
+  document.querySelectorAll('.sidebar-item').forEach(el => {
+    el.classList.remove('active');
+  });
+  if (id === 'prompts') renderPromptGrid();
+  if (id === 'analytics') renderAnalytics();
+  window.scrollTo(0, 0);
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function getFilteredPrompts() {
+  return getPrompts().filter(p => {
+    if (currentTeamFilter !== 'All' && p.team !== currentTeamFilter) return false;
+    if (currentProjectFilter !== 'All' && p.projectType !== currentProjectFilter) return false;
+    if (currentStageFilter !== 'All' && p.deliveryStage !== currentStageFilter) return false;
+    if (currentComplexFilter !== 'All' && p.complexity !== currentComplexFilter) return false;
+    const q = searchQuery.toLowerCase();
+    if (q) {
+      const hay = [p.title, p.useCase, p.team, p.projectType, p.deliveryStage, p.aiTool, ...(p.tags || [])].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    if (currentSort === 'trending') return (b.trending ? 1 : 0) - (a.trending ? 1 : 0) || b.likes - a.likes;
+    if (currentSort === 'newest') return (b.date || '').localeCompare(a.date || '');
+    if (currentSort === 'rating') return b.likes - a.likes;
+    if (currentSort === 'az') return a.title.localeCompare(b.title);
+    return 0;
+  });
+}
+
+function renderCard(p) {
+  const liked = likedPrompts.has(p.id);
+  const safeId = JSON.stringify(p.id);
+  const stagePill = p.deliveryStage ? `<span style="font-size:10px;background:#f0f0f0;padding:2px 6px;border-radius:3px;color:#605e5c">${p.deliveryStage}</span>` : '';
+  const toolPill = p.aiTool && p.aiTool !== 'Any' ? `<span style="font-size:10px;background:#f0f6fc;color:#0078d4;padding:2px 6px;border-radius:3px">${p.aiTool}</span>` : '';
+  const agentPill = p.agentSolve ? `<span style="font-size:10px;background:#f2e8ff;color:#6b21a8;padding:2px 6px;border-radius:3px" title="Agent Can Solve">🤖 ${p.agentSolve}</span>` : '';
+  const aiPill = p.aiSolve ? `<span style="font-size:10px;background:#dff6dd;color:#107c10;padding:2px 6px;border-radius:3px" title="AI (Non-Agent) Can Solve">✨ ${p.aiSolve}</span>` : '';
+  const teamClass = p.team.replace(/[^a-zA-Z]/g, '-');
+  return `
+    <div class="prompt-card" data-team="${p.team}" onclick="openPromptModal(${safeId})">
+      ${p.trending ? '<div class="trending-badge">🔥 Trending</div>' : ''}
+      <div class="card-header">
+        <span class="card-team-badge badge-${teamClass}">${p.team}</span>
+        <span class="card-complexity complexity-${p.complexity}">${p.complexity}</span>
+      </div>
+      <div class="card-title">${p.title}</div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">${stagePill}${toolPill}${agentPill}${aiPill}</div>
+      <div class="card-use-case">${p.useCase}</div>
+      <div class="card-prompt-preview">${(p.prompt||'').substring(0, 120)}…</div>
+      <div class="card-tags">${(p.tags||[]).slice(0,3).map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
+      <div class="card-footer">
+        <span class="card-meta">Updated ${p.date} · ${p.version}</span>
+        <div class="card-actions" onclick="event.stopPropagation()">
+          <button class="card-action-btn ${liked ? 'liked' : ''}" onclick="toggleLike(${safeId}, this)">
+            ${liked ? '♥' : '♡'} ${p.likes + (liked ? 1 : 0)}
+          </button>
+          <button class="card-action-btn" onclick="openPromptModal(${safeId})">View →</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPromptGrid() {
+  const filtered = getFilteredPrompts();
+  const grid = document.getElementById('promptGrid');
+  const noRes = document.getElementById('noResults');
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    noRes.classList.remove('hidden');
+  } else {
+    grid.innerHTML = filtered.map(renderCard).join('');
+    noRes.classList.add('hidden');
+  }
+}
+
+function renderTrending() {
+  const all = getPrompts();
+  const trending = all.filter(p => p.trending).slice(0, 3);
+  const shown = trending.length ? trending : all.slice(0, 3);
+  document.getElementById('trendingGrid').innerHTML = shown.map(renderCard).join('');
+}
+
+function renderAnalytics() {
+  const all = getPrompts();
+  const top = [...all].sort((a,b) => b.likes - a.likes).slice(0,5);
+  document.getElementById('topPromptsAnalytics').innerHTML = top.map((p, i) => `
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:24px;height:24px;border-radius:50%;background:var(--sp-blue-light);color:var(--sp-blue);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.title}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${p.team} · ♥ ${p.likes} likes</div>
+      </div>
+      <span class="card-team-badge badge-${p.team}" style="white-space:nowrap">${p.team}</span>
+    </div>
+  `).join('');
+
+  const teams = ['Engineering','HR','Sales','Operations','Marketing','Product','Leadership'];
+  const counts = teams.map(t => ({ team: t, count: all.filter(p=>p.team===t).reduce((a,p)=>a+p.likes,0) }));
+  const max = Math.max(...counts.map(c=>c.count), 1);
+  document.getElementById('teamAnalytics').innerHTML = counts.map(c => `
+    <div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:12px;font-weight:500">${c.team}</span>
+        <span style="font-size:12px;color:var(--text-muted)">${c.count} uses</span>
+      </div>
+      <div class="analytics-bar"><div class="analytics-fill" style="width:${Math.round(c.count/max*100)}%"></div></div>
+    </div>
+  `).join('');
+}
+
+// ─── Filters ─────────────────────────────────────────────────────────────────
+function setTeamFilter(team, el) {
+  currentTeamFilter = team;
+  document.querySelectorAll('#fb-team .filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderPromptGrid();
+}
+
+function setProjectFilter(val, el) {
+  currentProjectFilter = val;
+  document.querySelectorAll('#fb-project .filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderPromptGrid();
+}
+
+function setStageFilter(val, el) {
+  currentStageFilter = val;
+  document.querySelectorAll('#fb-stage .filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderPromptGrid();
+}
+
+function setComplexFilter(val, el) {
+  currentComplexFilter = val;
+  document.querySelectorAll('#fb-complex .filter-chip').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderPromptGrid();
+}
+
+function setSortOrder(val) {
+  currentSort = val;
+  renderPromptGrid();
+}
+
+function filterByTeam(team) {
+  currentTeamFilter = team;
+  currentProjectFilter = 'All';
+  currentStageFilter = 'All';
+  currentComplexFilter = 'All';
+  searchQuery = '';
+  showSection('prompts');
+  document.querySelectorAll('#fb-team .filter-chip').forEach(c => {
+    c.classList.toggle('active', c.textContent.includes(team) || (team === 'All' && c.textContent.trim() === 'All'));
+  });
+}
+
+function handleNavSearch(val) {
+  searchQuery = val;
+  document.getElementById('heroSearch').value = val;
+  if (val.length > 1) {
+    currentTeamFilter = 'All';
+    showSection('prompts');
+    renderPromptGrid();
+  }
+}
+
+function handleHeroSearch(val) {
+  searchQuery = val;
+  document.getElementById('navSearch').value = val;
+}
+
+function doSearch() {
+  showSection('prompts');
+  renderPromptGrid();
+}
+
+// ─── Prompt Modal ─────────────────────────────────────────────────────────────
+function openPromptModal(id) {
+  const p = getPrompts().find(x => x.id === id);
+  currentPromptIndex = id;
+  const liked = likedPrompts.has(id);
+
+  document.getElementById('modalBadge').innerHTML = `<span class="card-team-badge badge-${p.team}">${p.team}</span>`;
+  document.getElementById('modalTitle').textContent = p.title;
+  document.getElementById('modalVersion').textContent = p.version;
+  document.getElementById('modalComplexity').innerHTML = `<span class="card-complexity complexity-${p.complexity}">${p.complexity}</span>`;
+  document.getElementById('modalDate').textContent = 'Updated ' + p.date;
+  document.getElementById('modalUseCase').textContent = p.useCase;
+
+  const promptEl = document.getElementById('modalPrompt');
+  promptEl.innerHTML = `<button class="copy-btn" onclick="copyPrompt()" id="copyBtn">Copy</button>${escapeHtml(p.prompt)}`;
+
+  document.getElementById('modalInputs').innerHTML = p.inputs.map(i => `<div class="input-item">${i}</div>`).join('');
+  document.getElementById('modalExpected').textContent = p.expected;
+  document.getElementById('modalExample').textContent = p.example;
+  document.getElementById('modalTags').innerHTML = p.tags.map(t => `<span class="card-tag">${t}</span>`).join('');
+  document.getElementById('modalOwner').textContent = `${p.owner} · ♥ ${p.likes + (liked ? 1 : 0)} likes`;
+  document.getElementById('likeModalBtn').textContent = liked ? '♥ Liked' : '♡ Like';
+
+  document.getElementById('promptModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePromptModal(event) {
+  if (!event || event.target === document.getElementById('promptModal')) {
+    document.getElementById('promptModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── Likes ─────────────────────────────────────────────────────────────────
+function toggleLike(id, btn) {
+  const p = getPrompts().find(x => x.id === id);
+  if (!p) return;
+  if (likedPrompts.has(id)) {
+    likedPrompts.delete(id);
+    btn.classList.remove('liked');
+    btn.innerHTML = `♡ ${p.likes}`;
+  } else {
+    likedPrompts.add(id);
+    btn.classList.add('liked');
+    btn.innerHTML = `♥ ${p.likes + 1}`;
+    showToast('♥ Prompt liked!');
+  }
+}
+
+function likeFromModal() {
+  const id = currentPromptIndex;
+  if (id === null) return;
+  const p = getPrompts().find(x => x.id === id);
+  const btn = document.getElementById('likeModalBtn');
+  if (likedPrompts.has(id)) {
+    likedPrompts.delete(id);
+    btn.textContent = '♡ Like';
+  } else {
+    likedPrompts.add(id);
+    btn.textContent = '♥ Liked';
+    showToast('♥ Prompt liked!');
+  }
+}
+
+// ─── Copy ─────────────────────────────────────────────────────────────────
+function copyPrompt() {
+  const p = getPrompts().find(x => x.id === currentPromptIndex);
+  if (!p) return;
+  navigator.clipboard.writeText(p.prompt).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    showToast('📋 Prompt copied to clipboard!');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ─── Submit Modal ─────────────────────────────────────────────────────────────
+function openSubmitModal() {
+  document.getElementById('submitModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSubmitModal(event) {
+  if (!event || event.target === document.getElementById('submitModal')) {
+    document.getElementById('submitModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+function clearSubmitForm() {
+  ['sm-title','sm-team','sm-usecase','sm-prompt','sm-inputs','sm-complexity','sm-expected','sm-example','sm-tags']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+}
+
+function submitPrompt() {
+  const title    = (document.getElementById('sm-title').value || '').trim();
+  const team     = document.getElementById('sm-team').value;
+  const useCase  = (document.getElementById('sm-usecase').value || '').trim();
+  const prompt   = (document.getElementById('sm-prompt').value || '').trim();
+  const complexity = document.getElementById('sm-complexity').value;
+
+  if (!title || !team || !useCase || !prompt || !complexity) {
+    showToast('⚠️ Please fill in Title, Team, Use Case, Prompt Text, and Complexity.');
+    return;
+  }
+
+  // Parse inputs as array of {key, label} objects
+  const rawInputs = (document.getElementById('sm-inputs').value || '').trim();
+  const inputs = rawInputs
+    ? rawInputs.split(',').map(s => {
+        const label = s.trim();
+        const key   = label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+        return { key, label, required: false, example: '' };
+      })
+    : [];
+
+  // Parse tags
+  const rawTags = (document.getElementById('sm-tags').value || '').trim();
+  const tags = rawTags ? rawTags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : [];
+
+  // Build a unique ID
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '_').substring(0, 30);
+  const id   = `submit_${slug}_${Date.now()}`;
+  const now  = new Date().toISOString().split('T')[0];
+
+  const record = {
+    id,
+    meta: {
+      title,
+      team,
+      status: 'review',
+      complexity,
+      version: 'v1.0',
+      owner: '',
+      ai_tool: 'Any',
+      project_type: '',
+      delivery_stage: '',
+      manual_effort: '',
+      agent_solve: '',
+      ai_solve: '',
+      created_at: now,
+      updated_at: now
+    },
+    content: {
+      use_case: useCase,
+      system_context: '',
+      prompt_text: prompt,
+      inputs,
+      expected_output: (document.getElementById('sm-expected').value || '').trim(),
+      example_output:  (document.getElementById('sm-example').value || '').trim()
+    },
+    taxonomy: { tags },
+    stats: { views: 0, copies: 0, likes: 0 }
+  };
+
+  // Write to shared localStorage
+  const raw = localStorage.getItem(DB_KEY);
+  const db  = raw ? JSON.parse(raw) : { prompts: [] };
+  db.prompts.unshift(record);
+  db.lastUpdated = new Date().toISOString();
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+
+  closeSubmitModal();
+  clearSubmitForm();
+  showToast('✅ Prompt submitted for review! Open the Prompt Database to approve it.');
+}
+
+// ─── Toast ─────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+function initHub() {
+  // If no DB exists yet, seed it from prompt-database.html's default data
+  if (!localStorage.getItem(DB_KEY)) {
+    showToast('ℹ️ Open prompt-database.html first to load the database, or it auto-seeds on next visit.');
+  }
+  // Update live counts
+  const count = getPrompts().length;
+  const el = document.getElementById('heroCount');
+  if (el) el.textContent = count || '24';
+  // Update sidebar count
+  const sc = document.querySelector('.sidebar-item .item-count');
+  if (sc) sc.textContent = count || '24';
+  renderTrending();
+}
+initHub();
+</script>
+</body>
+</html>
