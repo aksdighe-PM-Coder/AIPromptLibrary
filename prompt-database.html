@@ -275,6 +275,26 @@ textarea.code:focus{border-color:var(--blue);}
 .team-bar-track { flex: 1; height: 8px; background: var(--bg); border-radius: 10px; overflow: hidden; }
 .team-bar-fill { height: 100%; border-radius: 10px; background: var(--gradient-brand); transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
 .team-bar-count { min-width: 30px; text-align: right; font-weight: 600; color: var(--text); font-size: 12px; }
+
+/* ── WELCOME BANNER ── */
+#welcomeBanner{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(10,20,40,0.55);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .35s ease;}
+#welcomeBanner.show{opacity:1;pointer-events:all;}
+.welcome-card{background:#fff;border-radius:18px;padding:36px 40px 28px;max-width:420px;width:90%;box-shadow:0 24px 60px rgba(0,0,0,0.22);text-align:center;position:relative;animation:wbSlide .4s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes wbSlide{from{transform:translateY(30px) scale(0.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.welcome-card-icon{font-size:48px;margin-bottom:12px;display:block;}
+.welcome-card-greeting{font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-.4px;}
+.welcome-card-day{font-size:15px;color:var(--blue);font-weight:600;margin-bottom:20px;}
+.welcome-card-divider{height:1px;background:var(--border);margin:0 -8px 20px;}
+.welcome-card-quote-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px;}
+.welcome-card-quote{font-size:14px;color:var(--text2);font-style:italic;line-height:1.6;margin-bottom:6px;padding:0 8px;}
+.welcome-card-quote-author{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:24px;}
+.welcome-card-actions{display:flex;gap:10px;justify-content:center;}
+.wb-btn-hub{padding:10px 22px;border-radius:8px;border:none;background:var(--gradient-brand);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:opacity .15s;}
+.wb-btn-hub:hover{opacity:.88;}
+.wb-btn-close{padding:10px 22px;border-radius:8px;border:1px solid var(--border-dk);background:#fff;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:background .15s;}
+.wb-btn-close:hover{background:var(--bg);}
+.wb-progress{height:3px;background:var(--bg);border-radius:10px;margin-top:20px;overflow:hidden;}
+.wb-progress-bar{height:100%;background:var(--gradient-brand);border-radius:10px;width:100%;transition:width linear;}
 </style>
 </head>
 <body>
@@ -302,6 +322,24 @@ textarea.code:focus{border-color:var(--blue);}
       <button class="gate-btn" onclick="gateSubmit()">Access Database →</button>
     </div>
     <div class="gate-footer">🔒 Access restricted to TPE Programs Team members · LinkedIn</div>
+  </div>
+</div>
+
+<!-- WELCOME BANNER -->
+<div id="welcomeBanner">
+  <div class="welcome-card">
+    <span class="welcome-card-icon" id="wbIcon">👋</span>
+    <div class="welcome-card-greeting" id="wbGreeting">Welcome back!</div>
+    <div class="welcome-card-day" id="wbDay"></div>
+    <div class="welcome-card-divider"></div>
+    <div class="welcome-card-quote-label">Quote of the Day</div>
+    <div class="welcome-card-quote" id="wbQuote"></div>
+    <div class="welcome-card-quote-author" id="wbAuthor"></div>
+    <div class="welcome-card-actions">
+      <button class="wb-btn-hub" onclick="window.location.href='ai-prompt-hub.html'">🚀 Go to Prompt Hub</button>
+      <button class="wb-btn-close" onclick="closeWelcomeBanner()">Continue →</button>
+    </div>
+    <div class="wb-progress"><div class="wb-progress-bar" id="wbBar"></div></div>
   </div>
 </div>
 
@@ -891,6 +929,10 @@ textarea.code:focus{border-color:var(--blue);}
           <div class="panel-field-val" id="pTags"></div>
         </div>
         <div class="panel-field">
+          <div class="panel-field-label">💬 Comments &amp; Feedback</div>
+          <div id="pComments" style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto"></div>
+        </div>
+        <div class="panel-field">
           <div class="panel-field-label">JSON Record</div>
           <div style="position:relative">
             <div class="panel-json" id="pJSON"></div>
@@ -955,6 +997,7 @@ function gateSubmit() {
   sessionStorage.setItem(AUTH_KEY, name);
   document.getElementById('authGate').style.display = 'none';
   applyUserToHeader(name);
+  showWelcomeBanner(name);
 }
 
 function showGateError(msg) {
@@ -2044,6 +2087,21 @@ function selectRow(id){
   const vars=(p.content.inputs||[]).map(i=>`<span style="font-family:monospace;font-size:11px;background:var(--blue-xlt);color:var(--blue);padding:2px 6px;border-radius:3px">{{${i.key}}}</span>`).join(' ');
   document.getElementById('pVars').innerHTML=vars||'<span style="color:var(--muted)">No variables defined</span>';
   document.getElementById('pTags').innerHTML=(p.taxonomy.tags||[]).map(t=>`<span style="background:var(--bg);border:1px solid var(--border);font-size:11px;padding:2px 7px;border-radius:3px">${t}</span>`).join(' ');
+  // Comments
+  const comments = (p.stats && p.stats.comments) || [];
+  const pComments = document.getElementById('pComments');
+  if (!comments.length) {
+    pComments.innerHTML = '<span style="font-size:12px;color:var(--muted);font-style:italic">No comments yet.</span>';
+  } else {
+    pComments.innerHTML = comments.slice().reverse().map(c => `
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:3px">
+          <span style="font-size:12px;font-weight:700;color:var(--blue)">${esc(c.author||'Anonymous')}</span>
+          <span style="font-size:11px;color:var(--muted)">${c.ts?new Date(c.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.5">${esc(c.text)}</div>
+      </div>`).join('');
+  }
   document.getElementById('pJSON').textContent=JSON.stringify(p,null,2);
   const isPublished=m.status==='published';
   const pubBtn=document.getElementById('panelPublishBtn');
@@ -2698,6 +2756,66 @@ document.getElementById('fTitle').addEventListener('input',function(){
   if(!document.getElementById('fId').value)
     document.getElementById('fSlug').value=genId(this.value);
 });
+
+// ─── WELCOME BANNER ────────────────────────────────────────────────────────
+const QUOTES = [
+  { q: "The best way to predict the future is to create it.", a: "— Peter Drucker" },
+  { q: "Productivity is never an accident. It is always the result of a commitment to excellence.", a: "— Paul J. Meyer" },
+  { q: "The secret of getting ahead is getting started.", a: "— Mark Twain" },
+  { q: "Do the hard jobs first. The easy jobs will take care of themselves.", a: "— Dale Carnegie" },
+  { q: "It's not about ideas. It's about making ideas happen.", a: "— Scott Belsky" },
+  { q: "Focus on being productive instead of busy.", a: "— Tim Ferriss" },
+  { q: "You don't have to be great to start, but you have to start to be great.", a: "— Zig Ziglar" },
+  { q: "Efficiency is doing things right. Effectiveness is doing the right things.", a: "— Peter Drucker" },
+  { q: "Small steps in the right direction can turn out to be the biggest steps of your life.", a: "— Unknown" },
+  { q: "The key is not to prioritize what's on your schedule, but to schedule your priorities.", a: "— Stephen Covey" },
+  { q: "Great things are done by a series of small things brought together.", a: "— Van Gogh" },
+  { q: "Innovation distinguishes between a leader and a follower.", a: "— Steve Jobs" },
+  { q: "Alone we can do so little; together we can do so much.", a: "— Helen Keller" }
+];
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAY_ICONS = ['☀️','🌟','💡','🚀','🏆','🎉','😎'];
+let wbTimer = null;
+const WB_DURATION = 15000;
+
+function showWelcomeBanner(name) {
+  const now = new Date();
+  const dayName = DAYS[now.getDay()];
+  const icon = DAY_ICONS[now.getDay()];
+  const q = QUOTES[now.getDate() % QUOTES.length];
+  const firstName = name.split(' ')[0];
+
+  document.getElementById('wbGreeting').textContent = `Welcome back, ${firstName}!`;
+  document.getElementById('wbDay').textContent = `Happy ${dayName} ✨`;
+  document.getElementById('wbIcon').textContent = icon;
+  document.getElementById('wbQuote').textContent = `"${q.q}"`;
+  document.getElementById('wbAuthor').textContent = q.a;
+
+  const banner = document.getElementById('welcomeBanner');
+  banner.classList.add('show');
+
+  // Progress bar countdown
+  const bar = document.getElementById('wbBar');
+  bar.style.transition = 'none';
+  bar.style.width = '100%';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      bar.style.transition = `width ${WB_DURATION}ms linear`;
+      bar.style.width = '0%';
+    });
+  });
+
+  wbTimer = setTimeout(closeWelcomeBanner, WB_DURATION);
+}
+
+function closeWelcomeBanner() {
+  clearTimeout(wbTimer);
+  const banner = document.getElementById('welcomeBanner');
+  banner.style.opacity = '0';
+  banner.style.pointerEvents = 'none';
+  setTimeout(() => { banner.classList.remove('show'); banner.style.opacity = ''; }, 350);
+}
+
 showTab('database');
 </script>
 </body>
